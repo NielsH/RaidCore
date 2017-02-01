@@ -93,7 +93,6 @@ local DEBUFFS = {
 ----------------------------------------------------------------------------------------------------
 local GetPlayerUnit = GameLib.GetPlayerUnit
 local GetUnitById = GameLib.GetUnitById
-local GetPlayerUnitByName = GameLib.GetPlayerUnitByName
 local nExperimentX89Id
 
 ----------------------------------------------------------------------------------------------------
