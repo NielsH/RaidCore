@@ -91,14 +91,16 @@ local DEBUFFS = {
 ----------------------------------------------------------------------------------------------------
 -- Locals.
 ----------------------------------------------------------------------------------------------------
-local GetPlayerUnit = GameLib.GetPlayerUnit
-local GetUnitById = GameLib.GetUnitById
 local nExperimentX89Id
-
+local player
 ----------------------------------------------------------------------------------------------------
 -- Encounter description.
 ----------------------------------------------------------------------------------------------------
 function mod:OnBossEnable()
+  player = {}
+  player.unit = GameLib.GetPlayerUnit()
+  player.name = player.unit:GetName()
+  player.id = player.unit:GetId()
   nExperimentX89Id = nil
 end
 
@@ -123,54 +125,66 @@ function mod:OnCastStart(nId, sCastName, nCastEndTime, sName)
   end
 end
 
-function mod:OnDebuffAdd(nId, nSpellId, nStack, fTimeRemaining)
-  local bIsItself = nId == GetPlayerUnit():GetId()
+function mod:OnLittleBombAdd(id, spellId, stack, timeRemaining, name, unitCaster)
+  local isPlayer = id == player.id
+  local sText = self.L["Little bomb on %s"]:format(name)
 
-  if DEBUFFS.LITTLE_BOMB == nSpellId then
-    local tUnit = GetUnitById(nId)
-    local sText = self.L["Little bomb on %s"]:format(tUnit:GetName())
-    if mod:GetSetting("LineLittleBomb") then
-      local o = core:AddLineBetweenUnits("LittleBomb", nExperimentX89Id, nId, nil, "blue")
-      o:SetMaxLengthVisible(40)
-    end
-    if mod:GetSetting("PictureLittleBomb") then
-      core:AddPicture("LittleBomb", nId, "Crosshair", 20, 0, 0, nil, "blue")
-    end
-    mod:AddMsg("LittleBomb", sText:upper(), 3, nil, "blue")
-    local bCountDownLittleBomb = mod:GetSetting("SoundLittleBomb") and bIsItself
-    mod:AddTimerBar("LittleBomb", sText, fTimeRemaining - 1, bCountDownLittleBomb)
-    if bIsItself then
-      if mod:GetSetting("SoundLittleBomb") then
-        core:PlaySound("RunAway")
-      end
-    end
-  elseif DEBUFFS.BIG_BOMB == nSpellId then
-    local tUnit = GetUnitById(nId)
-    local sText = self.L["Big bomb on %s"]:format(tUnit:GetName())
-    if mod:GetSetting("LineBigBomb") then
-      local o = core:AddLineBetweenUnits("BigBomb", nExperimentX89Id, nId, nil, "red")
-      o:SetMaxLengthVisible(40)
-    end
-    if mod:GetSetting("PictureBigBomb") then
-      core:AddPicture("BigBomb", nId, "Crosshair", 40, 0, 0, nil, "red")
-    end
-    mod:AddMsg("BigBomb", sText:upper(), 3, nil, "red")
-    local bCountDownBigBomb = mod:GetSetting("SoundBigBomb") and bIsItself
-    mod:AddTimerBar("BigBomb", sText, fTimeRemaining - 2, bCountDownBigBomb)
-    if bIsItself then
-      if mod:GetSetting("SoundBigBomb") then
-        core:PlaySound("RunAway")
-      end
-    end
+  if mod:GetSetting("LineLittleBomb") then
+    local o = core:AddLineBetweenUnits(id, nExperimentX89Id, id, nil, "blue")
+    o:SetMaxLengthVisible(40)
+  end
+
+  if mod:GetSetting("PictureLittleBomb") then
+    core:AddPicture(id, id, "Crosshair", 20, 0, 0, nil, "blue")
+  end
+
+  mod:AddMsg("LittleBomb", sText:upper(), 3, nil, "blue")
+  local bCountDownLittleBomb = mod:GetSetting("SoundLittleBomb") and isPlayer
+  mod:AddTimerBar("LittleBomb", sText, timeRemaining - 1, bCountDownLittleBomb)
+
+  if isPlayer and mod:GetSetting("SoundLittleBomb")then
+    core:PlaySound("RunAway")
   end
 end
 
-function mod:OnDebuffRemove(nId, nSpellId)
-  if DEBUFFS.LITTLE_BOMB == nSpellId then
-    core:RemovePicture("LittleBomb")
-    core:RemoveLineBetweenUnits("LittleBomb")
-  elseif DEBUFFS.BIG_BOMB == nSpellId then
-    core:RemovePicture("BigBomb")
-    core:RemoveLineBetweenUnits("BigBomb")
+function mod:OnBigBombAdd(id, spellId, stack, timeRemaining, name, unitCaster)
+  local isPlayer = id == player.id
+  local sText = self.L["Big bomb on %s"]:format(name)
+
+  if mod:GetSetting("LineBigBomb") then
+    local o = core:AddLineBetweenUnits(id, nExperimentX89Id, id, nil, "red")
+    o:SetMaxLengthVisible(40)
+  end
+
+  if mod:GetSetting("PictureBigBomb") then
+    core:AddPicture(id, id, "Crosshair", 40, 0, 0, nil, "red")
+  end
+
+  mod:AddMsg("BigBomb", sText:upper(), 3, nil, "red")
+  local bCountDownBigBomb = mod:GetSetting("SoundBigBomb") and isPlayer
+  mod:AddTimerBar("BigBomb", sText, timeRemaining - 2, bCountDownBigBomb)
+
+  if isPlayer and mod:GetSetting("SoundBigBomb") then
+    core:PlaySound("RunAway")
   end
 end
+
+function mod:RemoveDraws(id)
+  core:RemovePicture(id)
+  core:RemoveLineBetweenUnits(id)
+end
+----------------------------------------------------------------------------------------------------
+-- Bind event handlers.
+----------------------------------------------------------------------------------------------------
+mod:RegisterUnitEvents(core.E.ALL_UNITS, {
+    [core.E.UNIT_DESTROYED] = mod.RemoveDraws,
+    [DEBUFFS.LITTLE_BOMB] = {
+      [core.E.DEBUFF_ADD] = mod.OnLittleBombAdd,
+      [core.E.DEBUFF_REMOVE] = mod.RemoveDraws,
+    },
+    [DEBUFFS.BIG_BOMB] = {
+      [core.E.DEBUFF_ADD] = mod.OnBigBombAdd,
+      [core.E.DEBUFF_REMOVE] = mod.RemoveDraws,
+    },
+  }
+)
