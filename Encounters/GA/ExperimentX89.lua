@@ -105,27 +105,6 @@ function mod:OnBossEnable()
   nExperimentX89Id = nil
 end
 
-function mod:OnUnitCreated(nId, tUnit, sName)
-  if sName == self.L["unit.x89"] then
-    nExperimentX89Id = nId
-    core:AddUnit(tUnit)
-    core:WatchUnit(tUnit)
-    if mod:GetSetting("LineExperimentX89") then
-      core:AddSimpleLine("Cleave", nExperimentX89Id, 0, 5, 0, 8, "green")
-    end
-  end
-end
-
-function mod:OnCastStart(nId, sCastName, nCastEndTime, sName)
-  if sName == self.L["unit.x89"] then
-    if sCastName == self.L["cast.x89.knockback"] then
-      mod:AddMsg("KNOCKBACK", "msg.knockback", 3, "Alert")
-    elseif sCastName == self.L["cast.x89.spew"] then
-      mod:AddMsg("SPEW", "msg.spew", 3, "Info")
-    end
-  end
-end
-
 function mod:OnLittleBombAdd(id, spellId, stack, timeRemaining, name, unitCaster)
   local isPlayer = id == player.id
   local sText = self.L["msg.bomb.little"]:format(name)
@@ -174,6 +153,27 @@ function mod:RemoveDraws(id)
   core:RemovePicture(id)
   core:RemoveLineBetweenUnits(id)
 end
+
+function mod:OnX89Created(id, unit, name)
+  nExperimentX89Id = id
+  mod:AddUnit(unit)
+  core:WatchUnit(unit, core.E.TRACK_CASTS)
+  if mod:GetSetting("LineExperimentX89") then
+    core:AddSimpleLine("Cleave", id, 0, 5, 0, 8, "green")
+  end
+end
+
+function mod:OnX89Destroyed(id, unit, name)
+  core:RemoveSimpleLine("Cleave")
+end
+
+function mod:OnKnockbackStart()
+  mod:AddMsg("KNOCKBACK", "msg.knockback", 3, "Alert")
+end
+
+function mod:OnSpewStart()
+  mod:AddMsg("SPEW", "msg.spew", 3, "Info")
+end
 ----------------------------------------------------------------------------------------------------
 -- Bind event handlers.
 ----------------------------------------------------------------------------------------------------
@@ -186,6 +186,15 @@ mod:RegisterUnitEvents(core.E.ALL_UNITS, {
     [DEBUFFS.BIG_BOMB] = {
       [core.E.DEBUFF_ADD] = mod.OnBigBombAdd,
       [core.E.DEBUFF_REMOVE] = mod.RemoveDraws,
+    },
+  }
+)
+mod:RegisterUnitEvents("unit.x89", {
+    [core.E.UNIT_CREATED] = mod.OnX89Created,
+    [core.E.UNIT_DESTROYED] = mod.OnX89Destroyed,
+    [core.E.CAST_START] = {
+      ["cast.x89.knockback"] = mod.OnKnockbackStart,
+      ["cast.x89.spew"] = mod.OnSpewStart,
     },
   }
 )
