@@ -84,9 +84,10 @@ mod:RegisterDefaultTimerBarConfigs({
 ----------------------------------------------------------------------------------------------------
 -- Constants.
 ----------------------------------------------------------------------------------------------------
-local DEBUFFID_LITTLE_BOMB = 47316
-local DEBUFFID_BIG_BOMB = 47285
-
+local DEBUFFS = {
+  LITTLE_BOMB = 47316,
+  BIG_BOMB = 47285,
+}
 ----------------------------------------------------------------------------------------------------
 -- Locals.
 ----------------------------------------------------------------------------------------------------
@@ -126,7 +127,7 @@ end
 function mod:OnDebuffAdd(nId, nSpellId, nStack, fTimeRemaining)
   local bIsItself = nId == GetPlayerUnit():GetId()
 
-  if DEBUFFID_LITTLE_BOMB == nSpellId then
+  if DEBUFFS.LITTLE_BOMB == nSpellId then
     local tUnit = GetUnitById(nId)
     local sText = self.L["Little bomb on %s"]:format(tUnit:GetName())
     if mod:GetSetting("LineLittleBomb") then
@@ -144,7 +145,7 @@ function mod:OnDebuffAdd(nId, nSpellId, nStack, fTimeRemaining)
         core:PlaySound("RunAway")
       end
     end
-  elseif DEBUFFID_BIG_BOMB == nSpellId then
+  elseif DEBUFFS.BIG_BOMB == nSpellId then
     local tUnit = GetUnitById(nId)
     local sText = self.L["Big bomb on %s"]:format(tUnit:GetName())
     if mod:GetSetting("LineBigBomb") then
@@ -166,10 +167,10 @@ function mod:OnDebuffAdd(nId, nSpellId, nStack, fTimeRemaining)
 end
 
 function mod:OnDebuffRemove(nId, nSpellId)
-  if DEBUFFID_LITTLE_BOMB == nSpellId then
+  if DEBUFFS.LITTLE_BOMB == nSpellId then
     core:RemovePicture("LittleBomb")
     core:RemoveLineBetweenUnits("LittleBomb")
-  elseif DEBUFFID_BIG_BOMB == nSpellId then
+  elseif DEBUFFS.BIG_BOMB == nSpellId then
     core:RemovePicture("BigBomb")
     core:RemoveLineBetweenUnits("BigBomb")
   end
