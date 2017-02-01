@@ -14,59 +14,59 @@ if not mod then return end
 ----------------------------------------------------------------------------------------------------
 -- Registering combat.
 ----------------------------------------------------------------------------------------------------
-mod:RegisterTrigMob(core.E.TRIGGER_ANY, { "Experiment X-89" })
+mod:RegisterTrigMob(core.E.TRIGGER_ANY, { "unit.x89" })
 mod:RegisterEnglishLocale({
     -- Unit names.
-    ["Experiment X-89"] = "Experiment X-89",
+    ["unit.x89"] = "Experiment X-89",
     -- Datachron messages.
-    ---- This entry is used with string.match, so the dash in X-89 needs to be escaped.
-    ["Experiment X-89 has placed a bomb"] = "Experiment X%-89 has placed a bomb on (.*)!",
+    ["chron.x89.bomb"] = "Experiment X%-89 has placed a bomb on (.*)!",
     -- Cast.
-    ["Shattering Shockwave"] = "Shattering Shockwave",
-    ["Repugnant Spew"] = "Repugnant Spew",
-    ["Resounding Shout"] = "Resounding Shout",
+    ["cast.x89.shockwave"] = "Shattering Shockwave",
+    ["cast.x89.spew"] = "Repugnant Spew",
+    ["cast.x89.knockback"] = "Resounding Shout",
     -- Timer bars.
-    ["Big bomb on %s"] = "Big bomb on %s",
-    ["Little bomb on %s"] = "Little bomb on %s",
+    ["msg.bomb.big"] = "Big bomb on %s",
+    ["msg.bomb.little"] = "Little bomb on %s",
     -- Message bars.
-    ["KNOCKBACK"] = "KNOCKBACK",
-    ["SPEW"] = "SPEW",
-    ["SHOCKWAVE"] = "SHOCKWAVE",
-  })
+    ["msg.knockback"] = "KNOCKBACK",
+    ["msg.spew"] = "SPEW",
+    ["msg.shockwave"] = "SHOCKWAVE",
+  }
+)
 mod:RegisterFrenchLocale({
     -- Unit names.
-    ["Experiment X-89"] = "Expérience X-89",
+    ["unit.x89"] = "Expérience X-89",
     -- Datachron messages.
-    ---- This entry is used with string.match, so the dash in X-89 needs to be escaped.
-    ["Experiment X-89 has placed a bomb"] = "L'expérience X%-89 a posé une bombe sur (.*) !",
+    ["chron.x89.bomb"] = "L'expérience X%-89 a posé une bombe sur (.*) !",
     -- Cast.
-    ["Shattering Shockwave"] = "Onde de choc dévastatrice",
-    ["Repugnant Spew"] = "Crachat répugnant",
-    ["Resounding Shout"] = "Hurlement retentissant",
+    ["cast.x89.shockwave"] = "Onde de choc dévastatrice",
+    ["cast.x89.spew"] = "Crachat répugnant",
+    ["cast.x89.knockback"] = "Hurlement retentissant",
     -- Timer bars.
-    ["Big bomb on %s"] = "Grosse bombe sur %s",
-    ["Little bomb on %s"] = "Petite bombe sur %s",
+    ["msg.bomb.big"] = "Grosse bombe sur %s",
+    ["msg.bomb.little"] = "Petite bombe sur %s",
     -- Message bars.
-    ["KNOCKBACK"] = "KNOCKBACK",
-    ["SPEW"] = "CRACHAT",
-    ["SHOCKWAVE"] = "ONDE DE CHOC",
-  })
+    ["msg.knockback"] = "KNOCKBACK",
+    ["msg.spew"] = "CRACHAT",
+    ["msg.shockwave"] = "ONDE DE CHOC",
+  }
+)
 mod:RegisterGermanLocale({
     -- Unit names.
-    ["Experiment X-89"] = "Experiment X-89",
+    ["unit.x89"] = "Experiment X-89",
     -- Datachron messages.
-    ---- This entry is used with string.match, so the dash in X-89 needs to be escaped.
-    ["Experiment X-89 has placed a bomb"] = "Experiment X%-89 hat eine Bombe auf (.*)!",
+    ["chron.x89.bomb"] = "Experiment X%-89 hat eine Bombe auf (.*)!",
     -- Cast.
-    ["Shattering Shockwave"] = "Zerschmetternde Schockwelle",
-    ["Repugnant Spew"] = "Widerliches Erbrochenes",
-    ["Resounding Shout"] = "Widerhallender Schrei",
+    ["cast.x89.shockwave"] = "Zerschmetternde Schockwelle",
+    ["cast.x89.spew"] = "Widerliches Erbrochenes",
+    ["cast.x89.knockback"] = "Widerhallender Schrei",
     -- Timer bars.
     -- Message bars.
-    ["KNOCKBACK"] = "RÜCKSTOß",
-    ["SPEW"] = "ERBROCHENES",
-    ["SHOCKWAVE"] = "SCHOCKWELLE",
-  })
+    ["msg.knockback"] = "RÜCKSTOß",
+    ["msg.spew"] = "ERBROCHENES",
+    ["msg.shockwave"] = "SCHOCKWELLE",
+  }
+)
 -- Default settings.
 mod:RegisterDefaultSetting("LineExperimentX89")
 mod:RegisterDefaultSetting("LineBigBomb")
@@ -79,7 +79,8 @@ mod:RegisterDefaultSetting("SoundBigBomb")
 mod:RegisterDefaultTimerBarConfigs({
     ["LittleBomb"] = { sColor = "xkcdBottleGreen" },
     ["BigBomb"] = { sColor = "xkcdAubergine" },
-  })
+  }
+)
 
 ----------------------------------------------------------------------------------------------------
 -- Constants.
@@ -105,7 +106,7 @@ function mod:OnBossEnable()
 end
 
 function mod:OnUnitCreated(nId, tUnit, sName)
-  if sName == self.L["Experiment X-89"] then
+  if sName == self.L["unit.x89"] then
     nExperimentX89Id = nId
     core:AddUnit(tUnit)
     core:WatchUnit(tUnit)
@@ -116,18 +117,18 @@ function mod:OnUnitCreated(nId, tUnit, sName)
 end
 
 function mod:OnCastStart(nId, sCastName, nCastEndTime, sName)
-  if sName == self.L["Experiment X-89"] then
-    if sCastName == self.L["Resounding Shout"] then
-      mod:AddMsg("KNOCKBACK", "KNOCKBACK", 3, "Alert")
-    elseif sCastName == self.L["Repugnant Spew"] then
-      mod:AddMsg("SPEW", "SPEW", 3, "Info")
+  if sName == self.L["unit.x89"] then
+    if sCastName == self.L["cast.x89.knockback"] then
+      mod:AddMsg("KNOCKBACK", "msg.knockback", 3, "Alert")
+    elseif sCastName == self.L["cast.x89.spew"] then
+      mod:AddMsg("SPEW", "msg.spew", 3, "Info")
     end
   end
 end
 
 function mod:OnLittleBombAdd(id, spellId, stack, timeRemaining, name, unitCaster)
   local isPlayer = id == player.id
-  local sText = self.L["Little bomb on %s"]:format(name)
+  local sText = self.L["msg.bomb.little"]:format(name)
 
   if mod:GetSetting("LineLittleBomb") then
     local o = core:AddLineBetweenUnits(id, nExperimentX89Id, id, nil, "blue")
@@ -149,7 +150,7 @@ end
 
 function mod:OnBigBombAdd(id, spellId, stack, timeRemaining, name, unitCaster)
   local isPlayer = id == player.id
-  local sText = self.L["Big bomb on %s"]:format(name)
+  local sText = self.L["msg.bomb.big"]:format(name)
 
   if mod:GetSetting("LineBigBomb") then
     local o = core:AddLineBetweenUnits(id, nExperimentX89Id, id, nil, "red")
