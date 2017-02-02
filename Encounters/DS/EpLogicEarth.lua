@@ -88,8 +88,14 @@ mod:RegisterDefaultTimerBarConfigs({
 ----------------------------------------------------------------------------------------------------
 -- Constants.
 ----------------------------------------------------------------------------------------------------
-local BUFF_MNEMESIS_INFORMATIC_CLOUD = 52571
-local DEBUFF_SNAKE = 74570
+local DEBUFFS = {
+  SNAKE = 74570,
+}
+
+local BUFFS = {
+  INFORMATIC_CLOUD = 52571,
+}
+
 local COLOR_SNAKE_FOCUS = "xkcdBarneyPurple"
 local COLOR_SNAKE_UNFOCUS_OBSIDIAN = "xkcdBarbiePink"
 local COLOR_SNAKE_UNFOCUS_PLAYER = "xkcdBabyPink"
@@ -100,7 +106,6 @@ local COLOR_SNAKE_UNFOCUS_PLAYER = "xkcdBabyPink"
 local ipairs = ipairs
 local GetUnitById = GameLib.GetUnitById
 local GetPlayerUnit = GameLib.GetPlayerUnit
-local GetGameTime = GameLib.GetGameTime
 local nLastSnakePieceId
 local nMemberIdTargetedBySnake
 local tObsidianList
@@ -208,7 +213,7 @@ function mod:OnDebuffAdd(nId, nSpellId, nStack, fTimeRemaining)
   local tUnit = GetUnitById(nId)
   local sUnitName = tUnit:GetName()
 
-  if nSpellId == DEBUFF_SNAKE then
+  if nSpellId == DEBUFFS.SNAKE then
     local sSnakeOnX = self.L["SNAKE on %s"]:format(sUnitName)
     local sSound = tUnit == GetPlayerUnit() and mod:GetSetting("SoundSnake") and "RunAway"
     mod:AddMsg("SNAKE", sSnakeOnX, 5, sSound, "Blue")
