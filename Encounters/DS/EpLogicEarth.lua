@@ -188,31 +188,32 @@ function mod:OnCastStart(nId, sCastName, nCastEndTime, sName)
         core:AddPolygon("DEFRAG_SQUARE", GetPlayerUnit():GetId(), 13, 0, 4, "xkcdBloodOrange", 4)
         self:ScheduleTimer(function()
             core:RemovePolygon("DEFRAG_SQUARE")
-            end, 10)
-        end
+          end,
+          10)
       end
     end
   end
+end
 
-  function mod:OnDatachron(sMessage)
-    if sMessage:find(self.L["The ground shudders beneath Megalith"]) then
-      mod:AddMsg("QUAKE", "JUMP !", 3, mod:GetSetting("SoundQuakeJump") and "Beware")
-    elseif sMessage:find(self.L["Logic creates powerful data caches"]) then
-      mod:AddMsg("STARS", "STARS !", 5, mod:GetSetting("SoundStars") and "Alert")
-      mod:AddTimerBar("STARS", "Next phase: Stars", 60)
-    end
+function mod:OnDatachron(sMessage)
+  if sMessage:find(self.L["The ground shudders beneath Megalith"]) then
+    mod:AddMsg("QUAKE", "JUMP !", 3, mod:GetSetting("SoundQuakeJump") and "Beware")
+  elseif sMessage:find(self.L["Logic creates powerful data caches"]) then
+    mod:AddMsg("STARS", "STARS !", 5, mod:GetSetting("SoundStars") and "Alert")
+    mod:AddTimerBar("STARS", "Next phase: Stars", 60)
   end
+end
 
-  function mod:OnDebuffAdd(nId, nSpellId, nStack, fTimeRemaining)
-    local tUnit = GetUnitById(nId)
-    local sUnitName = tUnit:GetName()
+function mod:OnDebuffAdd(nId, nSpellId, nStack, fTimeRemaining)
+  local tUnit = GetUnitById(nId)
+  local sUnitName = tUnit:GetName()
 
-    if nSpellId == DEBUFF_SNAKE then
-      local sSnakeOnX = self.L["SNAKE on %s"]:format(sUnitName)
-      local sSound = tUnit == GetPlayerUnit() and mod:GetSetting("SoundSnake") and "RunAway"
-      mod:AddMsg("SNAKE", sSnakeOnX, 5, sSound, "Blue")
-      mod:AddTimerBar("SNAKE", sSnakeOnX, 20)
-      nMemberIdTargetedBySnake = nId
-      DrawSnakePieceLines()
-    end
+  if nSpellId == DEBUFF_SNAKE then
+    local sSnakeOnX = self.L["SNAKE on %s"]:format(sUnitName)
+    local sSound = tUnit == GetPlayerUnit() and mod:GetSetting("SoundSnake") and "RunAway"
+    mod:AddMsg("SNAKE", sSnakeOnX, 5, sSound, "Blue")
+    mod:AddTimerBar("SNAKE", sSnakeOnX, 20)
+    nMemberIdTargetedBySnake = nId
+    DrawSnakePieceLines()
   end
+end
