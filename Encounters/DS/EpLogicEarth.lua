@@ -109,6 +109,7 @@ local GetPlayerUnit = GameLib.GetPlayerUnit
 local nLastSnakePieceId
 local nMemberIdTargetedBySnake
 local tObsidianList
+local player
 
 local function DrawSnakePieceLines()
   if mod:GetSetting("LineSnakeVsPlayer") then
@@ -151,6 +152,11 @@ function mod:OnBossEnable()
   nLastSnakePieceId = nil
   tObsidianList = {}
   nMemberIdTargetedBySnake = nil
+  player = {}
+  player.unit = GameLib.GetPlayerUnit()
+  player.name = player.unit:GetName()
+  player.id = player.unit:GetId()
+
   mod:AddTimerBar("DEFRAG", "Next defragment", 10)
   mod:AddTimerBar("STARS", "Next phase: Stars", 60)
 end
@@ -209,16 +215,21 @@ function mod:OnDatachron(sMessage)
   end
 end
 
-function mod:OnDebuffAdd(nId, nSpellId, nStack, fTimeRemaining)
-  local tUnit = GetUnitById(nId)
-  local sUnitName = tUnit:GetName()
-
-  if nSpellId == DEBUFFS.SNAKE then
-    local sSnakeOnX = self.L["SNAKE on %s"]:format(sUnitName)
-    local sSound = tUnit == GetPlayerUnit() and mod:GetSetting("SoundSnake") and "RunAway"
-    mod:AddMsg("SNAKE", sSnakeOnX, 5, sSound, "Blue")
-    mod:AddTimerBar("SNAKE", sSnakeOnX, 20)
-    nMemberIdTargetedBySnake = nId
-    DrawSnakePieceLines()
-  end
+function mod:OnSnakeAdd(id, spellId, stack, timeRemaining, name)
+  local sSnakeOnX = self.L["SNAKE on %s"]:format(name)
+  local sSound = id == player.id and mod:GetSetting("SoundSnake") and "RunAway"
+  mod:AddMsg("SNAKE", sSnakeOnX, 5, sSound, "Blue")
+  mod:AddTimerBar("SNAKE", sSnakeOnX, 20)
+  nMemberIdTargetedBySnake = id
+  DrawSnakePieceLines()
 end
+
+----------------------------------------------------------------------------------------------------
+-- Bind event handlers.
+----------------------------------------------------------------------------------------------------
+mod:RegisterUnitEvents(core.E.ALL_UNITS, {
+    [DEBUFFS.SNAKE] = {
+      [core.E.DEBUFF_ADD] = mod.OnSnakeAdd,
+    },
+  }
+)
