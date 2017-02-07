@@ -437,7 +437,7 @@ end
 
 function mod:OnEssenceSurgeStart(id)
   if mod:GetSetting("SoundEssence"..essences[id].number) then
-    mod:AddMsg("ESSENCE_CAST", "msg.essence.interrupt", 2, "Inferno", "xkcdRed")
+    mod:AddMsg("ESSENCE_CAST", "msg.essence.interrupt", 2, "Inferno", "xkcdOrange")
   end
 end
 
