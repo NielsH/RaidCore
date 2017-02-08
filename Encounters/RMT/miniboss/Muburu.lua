@@ -21,7 +21,7 @@ mod:RegisterEnglishLocale({
     -- Unit names.
     ["unit.muburu"] = "Bonedoctor Muburu",
     ["unit.abomination"] = "Stiched Abomination",
-    ['unit.survivor'] = "Surgery Survivor",
+    ["unit.survivor"] = "Surgery Survivor",
     -- Cast names.
     -- Messages.
     ["msg.add.soon"] = "Add soon",
