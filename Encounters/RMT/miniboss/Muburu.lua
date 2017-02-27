@@ -64,20 +64,16 @@ function mod:OnMuburuHealthChanged(id, percent, name)
 end
 
 function mod:OnSurvivorCreated(id, unit, name)
-  core:AddUnit(unit)
+  mod:AddUnit(unit)
   core:WatchUnit(unit, core.E.TRACK_ALL)
 
   for i = 1, #SURVIVOR_POSITIONS do
     local pos = unit:GetPosition().x
     if pos >= SURVIVOR_POSITIONS[i].LOWER and pos <= SURVIVOR_POSITIONS[i].UPPER then
       core:MarkUnit(unit, core.E.LOCATION_STATIC_CHEST, i)
+      break
     end
   end
-end
-
-function mod:OnSurvivorCreated(id, unit, name)
-  core:AddUnit(unit)
-  core:WatchUnit(unit, core.E.TRACK_ALL)
 end
 
 function mod:OnSurvivorDestroyed(id, unit, name)
