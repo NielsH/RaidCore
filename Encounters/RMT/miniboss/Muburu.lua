@@ -42,11 +42,11 @@ mod:RegisterUnitBarConfig("unit.muburu", {
 -- Constants.
 ----------------------------------------------------------------------------------------------------
 local SURVIVOR_POSITIONS = {
-  {LOWER = 395, UPPER = 405},
-  {LOWER = 405, UPPER = 420},
-  {LOWER = 420, UPPER = 430},
-  {LOWER = 435, UPPER = 443},
-  {LOWER = 443, UPPER = 455},
+  {UPPER = -395, LOWER = -405},
+  {UPPER = -405, LOWER = -420},
+  {UPPER = -420, LOWER = -430},
+  {UPPER = -435, LOWER = -443},
+  {UPPER = -443, LOWER = -455},
 }
 ----------------------------------------------------------------------------------------------------
 -- Encounter description.
