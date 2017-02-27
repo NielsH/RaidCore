@@ -42,15 +42,18 @@ mod:RegisterUnitBarConfig("unit.muburu", {
 -- Constants.
 ----------------------------------------------------------------------------------------------------
 local SURVIVOR_POSITIONS = {
-  {UPPER = -395, LOWER = -405},
-  {UPPER = -405, LOWER = -420},
-  {UPPER = -420, LOWER = -430},
-  {UPPER = -435, LOWER = -443},
   {UPPER = -443, LOWER = -455},
+  {UPPER = -435, LOWER = -443},
+  {UPPER = -420, LOWER = -430},
+  {UPPER = -405, LOWER = -420},
+  {UPPER = -395, LOWER = -405},
 }
 ----------------------------------------------------------------------------------------------------
 -- Encounter description.
 ----------------------------------------------------------------------------------------------------
+function mod:OnBossEnable()
+  core:AddUnitSpacer("SURVIVOR_SPACER", nil, 1)
+end
 
 function mod:OnMuburuCreated(id, unit, name)
   mod:AddUnit(unit)
@@ -64,13 +67,13 @@ function mod:OnMuburuHealthChanged(id, percent, name)
 end
 
 function mod:OnSurvivorCreated(id, unit, name)
-  mod:AddUnit(unit)
   core:WatchUnit(unit, core.E.TRACK_ALL)
 
   for i = 1, #SURVIVOR_POSITIONS do
     local pos = unit:GetPosition().x
     if pos >= SURVIVOR_POSITIONS[i].LOWER and pos <= SURVIVOR_POSITIONS[i].UPPER then
-      core:MarkUnit(unit, core.E.LOCATION_STATIC_CHEST, i)
+      mod:AddUnit(unit, nil, i+1)
+      core:MarkUnit(unit, core.E.LOCATION_STATIC_NAME, i)
       break
     end
   end
