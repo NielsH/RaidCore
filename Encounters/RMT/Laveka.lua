@@ -545,7 +545,7 @@ function mod:OnBoneclawGazeAdd(id, spellId, stacks, timeRemaining, name, unitCas
   if name == player.name and unitCaster and unitCaster:IsValid() then
     local boneclawId = unitCaster:GetId()
     boneclawsOnYou[boneclawId] = {id = boneclawId, unit = unitCaster}
-    core:AddLineBetweenUnits(boneclawId, player.unit, unitCaster, 10, "xkcdBrightPurple")
+    core:AddLineBetweenUnits(boneclawId, player.unit, unitCaster, 10, "xkcdOrange")
   end
 end
 
