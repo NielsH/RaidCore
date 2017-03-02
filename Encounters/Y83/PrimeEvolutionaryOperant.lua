@@ -8,10 +8,10 @@
 -- Description:
 -- Unique encounter in Core-Y83 raid.
 --
--- - There are 3 boss called "Prime Evolutionary Operant". At any moment, one of them is
--- compromised, and his name is "Prime Phage Distributor".
+-- - There are 3 boss called "unit.augmentor.inactive". At any moment, one of them is
+-- compromised, and his name is "unit.augmentor.active".
 -- - Bosses don't move, their positions are constants so.
--- - The boss call "Prime Phage Distributor" have a debuff called "Compromised Circuitry".
+-- - The boss call "unit.augmentor.active" have a debuff called "Compromised Circuitry".
 -- - And switch boss occur at 60% and 20% of health.
 -- - The player which will be irradied is the last connected in the game (probability: 95%).
 --
@@ -30,44 +30,44 @@ if not mod then return end
 -- Registering combat.
 ----------------------------------------------------------------------------------------------------
 mod:RegisterTrigMob(core.E.TRIGGER_ANY, {
-    "Prime Evolutionary Operant",
-    "Prime Phage Distributor",
-    "Organic Incinerator"
+    "unit.augmentor.inactive",
+    "unit.augmentor.active",
+    "unit.incinerator"
   }
 )
 mod:RegisterEnglishLocale({
     -- Unit names.
-    ["Prime Evolutionary Operant"] = "Prime Evolutionary Operant",
-    ["Prime Phage Distributor"] = "Prime Phage Distributor",
-    ["Sternum Buster"] = "Sternum Buster",
-    ["Organic Incinerator"] = "Organic Incinerator",
+    ["unit.augmentor.inactive"] = "Prime Evolutionary Operant",
+    ["unit.augmentor.active"] = "Prime Phage Distributor",
+    ["unit.add"] = "Sternum Buster",
+    ["unit.incinerator"] = "Organic Incinerator",
     -- Datachron messages.
-    ["(.*) is being irradiated"] = "(.*) is being irradiated!",
-    ["ENGAGING TECHNOPHAGE TRASMISSION"] = "ENGAGING TECHNOPHAGE TRASMISSION",
-    ["A Prime Purifier has been corrupted!"] = "A Prime Purifier has been corrupted!",
-    ["INITIATING DECONTAMINATION SEQUENCE"] = "INITIATING DECONTAMINATION SEQUENCE",
+    ["chron.irradiated"] = "(.*) is being irradiated!",
+    ["chron.transmission"] = "ENGAGING TECHNOPHAGE TRASMISSION",
+    ["chron.corrupted"] = "A Prime Purifier has been corrupted!",
+    ["chron.decontamination"] = "INITIATING DECONTAMINATION SEQUENCE",
     -- Cast
-    ["Disintegrate"] = "Disintegrate",
-    ["Digitize"] = "Digitize",
-    ["Strain Injection"] = "Strain Injection",
-    ["Corruption Spike"] = "Corruption Spike",
+    ["cast.incinerator.disintegrate"] = "Disintegrate",
+    ["cast.augmentor.digitize"] = "cast.augmentor.digitize",
+    ["cast.augmentor.injection"] = "Strain Injection",
+    ["cast.augmentor.spike"] = "Corruption Spike",
     -- Bars messages.
-    ["~Next irradiate"] = "~Next irradiate",
-    ["%u STACKS BEFORE CORRUPTION"] = "%u STACKS BEFORE CORRUPTION",
+    ["msg.irradiate"] = "~Next irradiate",
+    ["msg.corruption.warning"] = "%u STACKS BEFORE CORRUPTION",
   }
 )
 mod:RegisterFrenchLocale({
     -- Unit names.
-    ["Prime Evolutionary Operant"] = "Opérateur de la Primo Évolution",
-    ["Prime Phage Distributor"] = "Distributeur de Primo Phage",
-    ["Organic Incinerator"] = "Incinérateur organique",
+    ["unit.augmentor.inactive"] = "Opérateur de la Primo Évolution",
+    ["unit.augmentor.active"] = "Distributeur de Primo Phage",
+    ["unit.incinerator"] = "Incinérateur organique",
     -- Datachron messages.
-    ["Disintegrate"] = "Désintégration",
-    ["(.*) is being irradiated"] = "(.*) est irradiée.",
-    ["ENGAGING TECHNOPHAGE TRASMISSION"] = "ENCLENCHEMENT DE LA TRANSMISSION DU TECHNOPHAGE",
+    ["chron.irradiated"] = "(.*) est irradiée.",
+    ["chron.transmission"] = "ENCLENCHEMENT DE LA TRANSMISSION DU TECHNOPHAGE",
+    ["cast.incinerator.disintegrate"] = "Désintégration",
     -- Bars messages.
-    ["~Next irradiate"] = "~Prochaine irradiation",
-    ["%u STACKS BEFORE CORRUPTION"] = "%u STACKS AVANT CORRUPTION",
+    ["msg.irradiate"] = "~Prochaine irradiation",
+    ["msg.corruption.warning"] = "%u STACKS AVANT CORRUPTION",
   }
 )
 mod:RegisterGermanLocale({
@@ -100,7 +100,7 @@ local NewVector3 = Vector3.New
 ----------------------------------------------------------------------------------------------------
 -- Constants.
 ----------------------------------------------------------------------------------------------------
--- Center of the room, where is the Organic Incinerator button.
+-- Center of the room, where is the unit.incinerator button.
 local ORGANIC_INCINERATOR = { x = 1268, y = -800, z = 876 }
 
 local DEBUFFS = {
@@ -174,7 +174,7 @@ function mod:OnBossEnable()
   tPrimeOperant2ZoneIndex = {}
   nPrimeDistributorId = nil
   bIsPhaseUnder20Poucent = false
-  mod:AddTimerBar("NEXT_IRRADIATE", "~Next irradiate", 27, mod:GetSetting("SoundNextIrradiateCountDown"))
+  mod:AddTimerBar("NEXT_IRRADIATE", "msg.irradiate", 27, mod:GetSetting("SoundNextIrradiateCountDown"))
   if mod:GetSetting("LinesOnBosses") then
     for i, Vectors in next, STATIC_LINES do
       core:AddLineBetweenUnits("StaticLine" .. i, Vectors[1], Vectors[2], 3, "xkcdAmber")
@@ -214,10 +214,10 @@ function mod:OnIncineratorCreated(id, unit, name)
 end
 
 function mod:OnDatachron(sMessage)
-  local sPlayerNameIrradiate = sMessage:match(self.L["(.*) is being irradiated"])
+  local sPlayerNameIrradiate = sMessage:match(self.L["chron.irradiated"])
   if sPlayerNameIrradiate then
     -- Sometime it's 26s, sometime 27s or 28s.
-    mod:AddTimerBar("NEXT_IRRADIATE", "~Next irradiate", 26, mod:GetSetting("SoundNextIrradiateCountDown"))
+    mod:AddTimerBar("NEXT_IRRADIATE", "msg.irradiate", 26, mod:GetSetting("SoundNextIrradiateCountDown"))
     if mod:GetSetting("LineRadiation") then
       local tMemberUnit = GetPlayerUnitByName(sPlayerNameIrradiate)
       if tMemberUnit then
@@ -229,9 +229,9 @@ function mod:OnDatachron(sMessage)
         end
       end
     end
-  elseif sMessage == self.L["ENGAGING TECHNOPHAGE TRASMISSION"] then
-    mod:AddTimerBar("NEXT_IRRADIATE", "~Next irradiate", 40, mod:GetSetting("SoundNextIrradiateCountDown"))
-  elseif sMessage == self.L["A Prime Purifier has been corrupted!"] then
+  elseif sMessage == self.L["chron.transmission"] then
+    mod:AddTimerBar("NEXT_IRRADIATE", "msg.irradiate", 40, mod:GetSetting("SoundNextIrradiateCountDown"))
+  elseif sMessage == self.L["chron.corrupted"] then
     bIsPhaseUnder20Poucent = true
   end
 end
@@ -277,8 +277,8 @@ function mod:OnDebuffAdd(nId, nSpellId, nStack, fTimeRemaining)
       end
     end
   elseif DEBUFFS.PAIN_SUPPRESSORS == nSpellId then
-    -- When the Organic Incinerator is interrupt, all alive players will have this debuff
-    -- during 7s. The Organic Incinerator beam is without danger during 5s.
+    -- When the unit.incinerator is interrupt, all alive players will have this debuff
+    -- during 7s. The unit.incinerator beam is without danger during 5s.
     if nPainSuppressorsFadeTime < nCurrentTime then
       nPainSuppressorsFadeTime = nCurrentTime + fTimeRemaining
       local line = core:GetSimpleLine("INCINERATOR_BEAM")
@@ -317,7 +317,7 @@ function mod:OnNanostrainInfusionUpdate(id, spellId, stack, timeRemaining)
   local nRemain = NANOSTRAIN_2_CORRUPTION_THRESHOLD - stack
   if nRemain == 2 or nRemain == 1 then
     local sColor = nRemain == 2 and "blue" or "red"
-    core:AddMsg("WARNING", self.L["%u STACKS BEFORE CORRUPTION"]:format(nRemain), 4, nil, sColor)
+    core:AddMsg("WARNING", self.L["msg.corruption.warning"]:format(nRemain), 4, nil, sColor)
   end
 end
 
@@ -338,8 +338,8 @@ mod:RegisterUnitEvents(core.E.ALL_UNITS, {
   }
 )
 mod:RegisterUnitEvents({
-    "Prime Evolutionary Operant",
-    "Prime Phage Distributor",
+    "unit.augmentor.inactive",
+    "unit.augmentor.active",
     }, {
     [BUFFS.COMPROMISED_CIRCUITRY] = {
       [core.E.BUFF_ADD] = mod.OnCompromisedCircuitryAdd,
@@ -349,19 +349,20 @@ mod:RegisterUnitEvents({
     },
   }
 )
-mod:RegisterUnitEvents("Prime Evolutionary Operant", {
+mod:RegisterUnitEvents("unit.augmentor.inactive", {
     [core.E.UNIT_CREATED] = mod.OnOperantCreated,
     [core.E.UNIT_DESTROYED] = mod.OnAugmentorDestroyed,
   }
 )
-mod:RegisterUnitEvents("Prime Phage Distributor", {
+mod:RegisterUnitEvents("unit.augmentor.active", {
     [core.E.UNIT_CREATED] = mod.OnDistributorCreated,
     [core.E.UNIT_DESTROYED] = mod.OnAugmentorDestroyed,
   }
 )
-mod:RegisterUnitEvents("Organic Incinerator", {
+mod:RegisterUnitEvents("unit.incinerator", {
     [core.E.UNIT_CREATED] = mod.OnIncineratorCreated,
-    ["Disintegrate"] = {
+    [core.E.UNIT_DESTROYED] = mod.OnIncineratorDestroyed,
+    ["cast.incinerator.disintegrate"] = {
       [core.E.CAST_START] = mod.OnDisintegrateStart,
     }
   }
