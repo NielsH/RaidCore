@@ -200,7 +200,7 @@ end
 
 function mod:OnOperantCreated(id, unit, name)
   local priority
-  core:WatchUnit(unit)
+  core:WatchUnit(unit, core.E.TRACK_BUFFS + core.E.TRACK_HEALTH)
   core:AddSimpleLine("CLEAVE_"..id, id, 0, 15, 0, 5, "green")
   local tPosition = unit:GetPosition()
   if tPosition.x < ORGANIC_INCINERATOR.x then
@@ -217,7 +217,7 @@ end
 
 function mod:OnDistributorCreated(id, unit, name)
   mod:AddUnit(unit, nil, 2)
-  core:WatchUnit(unit)
+  core:WatchUnit(unit, core.E.TRACK_BUFFS + core.E.TRACK_HEALTH)
   core:MarkUnit(unit, 51, "M")
   core:AddSimpleLine("CLEAVE_"..id, id, 0, 15, 0, 5, "green")
   tPrimeOperant2ZoneIndex[id] = INCUBATION_ZONE_NORTH
