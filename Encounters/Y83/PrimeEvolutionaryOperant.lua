@@ -91,9 +91,7 @@ mod:RegisterDefaultTimerBarConfigs({
 -- Copy of few objects to reduce the cpu load.
 -- Because all local objects are faster.
 ----------------------------------------------------------------------------------------------------
-local GetUnitById = GameLib.GetUnitById
 local GetGameTime = GameLib.GetGameTime
-local GetPlayerUnit = GameLib.GetPlayerUnit
 local GetPlayerUnitByName = GameLib.GetPlayerUnitByName
 local NewVector3 = Vector3.New
 
@@ -160,7 +158,7 @@ local INCUBATION_REGROUP_ZONE = {
 -- Locals.
 ----------------------------------------------------------------------------------------------------
 local nRadiationEndTime
-local nPainSuppressorsFadeTime
+local painSuppressorsFadeTime
 local tPrimeOperant2ZoneIndex
 local nPrimeDistributorId
 local bIsPhaseUnder20Poucent
@@ -170,7 +168,7 @@ local bIsPhaseUnder20Poucent
 ----------------------------------------------------------------------------------------------------
 function mod:OnBossEnable()
   nRadiationEndTime = 0
-  nPainSuppressorsFadeTime = 0
+  painSuppressorsFadeTime = 0
   tPrimeOperant2ZoneIndex = {}
   nPrimeDistributorId = nil
   bIsPhaseUnder20Poucent = false
@@ -221,10 +219,9 @@ function mod:OnDatachron(sMessage)
     if mod:GetSetting("LineRadiation") then
       local tMemberUnit = GetPlayerUnitByName(sPlayerNameIrradiate)
       if tMemberUnit then
-        local nMemberId = tMemberUnit:GetId()
-        local nPlayerId = GetPlayerUnit():GetId()
-        if nMemberId ~= nPlayerId then
-          local o = core:AddLineBetweenUnits("RADIATION", nPlayerId, nMemberId, 3, "cyan")
+        local memberId = tMemberUnit:GetId()
+        if not tMemberUnit:IsThePlayer() then
+          local o = core:AddLineBetweenUnits("RADIATION", mod.player.id, memberId, 3, "cyan")
           o:SetMinLengthVisible(10)
         end
       end
@@ -244,49 +241,47 @@ function mod:OnHealthChanged(nId, nPourcent, sName)
   end
 end
 
-function mod:OnDebuffAdd(nId, nSpellId, nStack, fTimeRemaining)
-  local nPlayerId = GetPlayerUnit():GetId()
-  local tUnit = GetUnitById(nId)
-  local nCurrentTime = GetGameTime()
+function mod:OnStrainIncubationAdd(id, spellId, stack, timeRemaining, name, unitCaster, unitTarget)
+  if mod:GetSetting("PictureIncubation") then
+    core:AddPicture("INCUBATION_"..id, id, "Crosshair", 20)
+  end
+  if mod:GetSetting("IncubationRegroupZone") and nPrimeDistributorId then
+    local nIndex = tPrimeOperant2ZoneIndex[nPrimeDistributorId]
+    if nIndex then
+      local sColor = unitTarget:IsThePlayer() and "ffff00ff" or "60ff00ff"
+      local Vector = INCUBATION_REGROUP_ZONE[nIndex]
+      local o = core:AddLineBetweenUnits("SAFE_ZONE_GO_"..id, id, Vector, 5, sColor, 10)
+      o:SetSprite("CRB_MegamapSprites:sprMap_PlayerArrowNoRing", 20)
+      o:SetMinLengthVisible(5)
+      o:SetMaxLengthVisible(50)
+    end
+  end
+end
 
-  if DEBUFFS.STRAIN_INCUBATION == nSpellId then
-    if mod:GetSetting("PictureIncubation") then
-      core:AddPicture("INCUBATION_"..nId, nId, "Crosshair", 20)
+function mod:OnRadiationBathAdd(id, spellId, stack, timeRemaining, name, unitCaster, unitTarget)
+  local currentTime = GetGameTime()
+  if nRadiationEndTime < currentTime then
+    nRadiationEndTime = currentTime + 12
+    if mod:GetSetting("LineRadiation") then
+      local o = core:AddLineBetweenUnits("RADIATION", mod.player.id, unitTarget:GetPosition(), 3, "cyan")
+      o:SetMinLengthVisible(10)
+      mod:ScheduleTimer(function()
+          core:RemoveLineBetweenUnits("RADIATION")
+        end,
+        10)
     end
-    if mod:GetSetting("IncubationRegroupZone") and nPrimeDistributorId then
-      local nIndex = tPrimeOperant2ZoneIndex[nPrimeDistributorId]
-      if nIndex then
-        local sColor = nPlayerId == nId and "ffff00ff" or "60ff00ff"
-        local Vector = INCUBATION_REGROUP_ZONE[nIndex]
-        local o = core:AddLineBetweenUnits("SAFE_ZONE_GO_"..nId, nId, Vector, 5, sColor, 10)
-        o:SetSprite("CRB_MegamapSprites:sprMap_PlayerArrowNoRing", 20)
-        o:SetMinLengthVisible(5)
-        o:SetMaxLengthVisible(50)
-      end
-    end
-  elseif DEBUFFS.RADIATION_BATH == nSpellId then
-    if nRadiationEndTime < nCurrentTime then
-      nRadiationEndTime = nCurrentTime + 12
-      if mod:GetSetting("LineRadiation") then
-        local o = core:AddLineBetweenUnits("RADIATION", nPlayerId, tUnit:GetPosition(), 3, "cyan")
-        o:SetMinLengthVisible(10)
-        mod:ScheduleTimer(function()
-            core:RemoveLineBetweenUnits("RADIATION")
-          end,
-          10)
-      end
-    end
-  elseif DEBUFFS.PAIN_SUPPRESSORS == nSpellId then
-    -- When the unit.incinerator is interrupt, all alive players will have this debuff
-    -- during 7s. The unit.incinerator beam is without danger during 5s.
-    if nPainSuppressorsFadeTime < nCurrentTime then
-      nPainSuppressorsFadeTime = nCurrentTime + fTimeRemaining
-      local line = core:GetSimpleLine("INCINERATOR_BEAM")
-      if line then
-        line:SetColor("6000ff00")
-        self:ScheduleTimer(function(l) l:SetColor("A0ff8000") end, 4, line)
-        self:ScheduleTimer(function(l) l:SetColor("red") end, 5, line)
-      end
+  end
+end
+
+function mod:OnPainSuppressorsAdd(id, spellId, stack, timeRemaining, name, unitCaster, unitTarget)
+  local currentTime = GetGameTime()
+  if painSuppressorsFadeTime < currentTime then
+    painSuppressorsFadeTime = currentTime + timeRemaining
+    local line = core:GetSimpleLine("INCINERATOR_BEAM")
+    if line then
+      line:SetColor("6000ff00")
+      self:ScheduleTimer(function(l) l:SetColor("A0ff8000") end, 4, line)
+      self:ScheduleTimer(function(l) l:SetColor("red") end, 5, line)
     end
   end
 end
@@ -296,7 +291,11 @@ function mod:OnStrainIncubationRemove(id)
   core:RemoveLineBetweenUnits("SAFE_ZONE_GO_"..id)
 end
 
-function mod:OnCompromisedCircuitryAdd(id, spellId, stack, timeRemaining)
+function mod:OnAnyUnitDestroyed(id, unit, name)
+  mod:OnStrainIncubationRemove(id)
+end
+
+function mod:OnCompromisedCircuitryAdd(id, spellId, stack, timeRemaining, name, unitCaster, unitTarget)
   for i, Vector in next, INCUBATION_REGROUP_ZONE do
     core:RemovePicture("IZ" .. i)
   end
@@ -313,7 +312,7 @@ function mod:OnCompromisedCircuitryAdd(id, spellId, stack, timeRemaining)
 end
 
 --TODO: Filter out dropping stacks
-function mod:OnNanostrainInfusionUpdate(id, spellId, stack, timeRemaining)
+function mod:OnNanostrainInfusionUpdate(id, spellId, stack, timeRemaining, name, unitCaster, unitTarget)
   local nRemain = NANOSTRAIN_2_CORRUPTION_THRESHOLD - stack
   if nRemain == 2 or nRemain == 1 then
     local sColor = nRemain == 2 and "blue" or "red"
@@ -333,7 +332,14 @@ end
 mod:RegisterUnitEvents(core.E.ALL_UNITS, {
     [core.E.UNIT_DESTROYED] = mod.OnAnyUnitDestroyed,
     [DEBUFFS.STRAIN_INCUBATION] = {
+      [core.E.DEBUFF_ADD] = mod.OnStrainIncubationAdd,
       [core.E.DEBUFF_REMOVE] = mod.OnStrainIncubationRemove,
+    },
+    [DEBUFFS.PAIN_SUPPRESSORS] = {
+      [core.E.DEBUFF_ADD] = mod.OnPainSuppressorsAdd,
+    },
+    [DEBUFFS.RADIATION_BATH] = {
+      [core.E.DEBUFF_ADD] = mod.OnRadiationBathAdd,
     },
   }
 )
