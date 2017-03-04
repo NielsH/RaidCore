@@ -250,11 +250,11 @@ function mod:OnDatachron(sMessage)
   end
 end
 
-function mod:OnHealthChanged(nId, nPourcent, sName)
-  if nPourcent == 62 or nPourcent == 22 then
+function mod:OnAugmentorHealthChanged(id, percent, name)
+  if mod:IsMidphaseClose(name, percent) then
     mod:AddMsg("SWITCH", "SWITCH SOON", 5, mod:GetSetting("SoundSwitch") and "Long")
-  elseif nPourcent == 20 then
-    tPrimeOperant2ZoneIndex[nId] = nil
+  elseif percent == 20 then
+    tPrimeOperant2ZoneIndex[id] = nil
   end
 end
 
@@ -364,6 +364,8 @@ mod:RegisterUnitEvents({
     "unit.augmentor.inactive",
     "unit.augmentor.active",
     }, {
+    [core.E.UNIT_DESTROYED] = mod.OnAugmentorDestroyed,
+    [core.E.HEALTH_CHANGED] = mod.OnAugmentorHealthChanged,
     [BUFFS.COMPROMISED_CIRCUITRY] = {
       [core.E.BUFF_ADD] = mod.OnCompromisedCircuitryAdd,
     },
