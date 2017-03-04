@@ -86,6 +86,20 @@ mod:RegisterDefaultTimerBarConfigs({
     ["NEXT_IRRADIATE"] = { sColor = "xkcdLightRed" },
   }
 )
+mod:RegisterUnitBarConfig("unit.augmentor.inactive", {
+    tMidphases = {
+      {percent = 60},
+      {percent = 20},
+    }
+  }
+)
+mod:RegisterUnitBarConfig("unit.augmentor.active", {
+    tMidphases = {
+      {percent = 60},
+      {percent = 20},
+    }
+  }
+)
 
 ----------------------------------------------------------------------------------------------------
 -- Copy of few objects to reduce the cpu load.
@@ -185,7 +199,7 @@ function mod:OnBossEnable()
 end
 
 function mod:OnOperantCreated(id, unit, name)
-  core:AddUnit(unit)
+  mod:AddUnit(unit)
   core:WatchUnit(unit)
   core:AddSimpleLine("CLEAVE_"..id, id, 0, 15, 0, 5, "green")
   local tPosition = unit:GetPosition()
@@ -199,7 +213,7 @@ function mod:OnOperantCreated(id, unit, name)
 end
 
 function mod:OnDistributorCreated(id, unit, name)
-  core:AddUnit(unit)
+  mod:AddUnit(unit)
   core:WatchUnit(unit)
   core:MarkUnit(unit, 51, "M")
   core:AddSimpleLine("CLEAVE_"..id, id, 0, 15, 0, 5, "green")
