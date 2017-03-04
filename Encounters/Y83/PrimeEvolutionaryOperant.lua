@@ -199,21 +199,24 @@ function mod:OnBossEnable()
 end
 
 function mod:OnOperantCreated(id, unit, name)
-  mod:AddUnit(unit)
+  local priority
   core:WatchUnit(unit)
   core:AddSimpleLine("CLEAVE_"..id, id, 0, 15, 0, 5, "green")
   local tPosition = unit:GetPosition()
   if tPosition.x < ORGANIC_INCINERATOR.x then
+    priority = 1
     core:MarkUnit(unit, 51, "L")
     tPrimeOperant2ZoneIndex[id] = INCUBATION_ZONE_WEST
   else
+    priority = 3
     core:MarkUnit(unit, 51, "R")
     tPrimeOperant2ZoneIndex[id] = INCUBATION_ZONE_EST
   end
+  mod:AddUnit(unit, nil, priority)
 end
 
 function mod:OnDistributorCreated(id, unit, name)
-  mod:AddUnit(unit)
+  mod:AddUnit(unit, nil, 2)
   core:WatchUnit(unit)
   core:MarkUnit(unit, 51, "M")
   core:AddSimpleLine("CLEAVE_"..id, id, 0, 15, 0, 5, "green")
