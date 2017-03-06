@@ -240,12 +240,9 @@ function mod:OnIrradiated(message, name)
   mod:AddTimerBar("NEXT_IRRADIATE", "msg.irradiate", 26, mod:GetSetting("SoundNextIrradiateCountDown"))
   if mod:GetSetting("LineRadiation") then
     local tMemberUnit = GetPlayerUnitByName(name)
-    if tMemberUnit then
-      local memberId = tMemberUnit:GetId()
-      if not tMemberUnit:IsThePlayer() then
-        local o = core:AddLineBetweenUnits("RADIATION", mod.player.id, memberId, 3, "cyan")
-        o:SetMinLengthVisible(10)
-      end
+    if tMemberUnit and not tMemberUnit:IsThePlayer() then
+      local o = core:AddLineBetweenUnits("RADIATION", mod.player.unit, tMemberUnit, 3, "cyan")
+      o:SetMinLengthVisible(10)
     end
   end
 end
