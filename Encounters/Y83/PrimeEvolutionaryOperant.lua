@@ -42,7 +42,7 @@ mod:RegisterEnglishLocale({
     ["unit.add"] = "Sternum Buster",
     ["unit.incinerator"] = "Organic Incinerator",
     -- Datachron messages.
-    ["chron.irradiated"] = "(.*) is being irradiated!",
+    ["chron.irradiated"] = "([^%s]+%s[^%s]+) is being irradiated!",
     ["chron.transmission"] = "ENGAGING TECHNOPHAGE TRASMISSION",
     ["chron.corrupted"] = "A Prime Purifier has been corrupted!",
     ["chron.decontamination"] = "INITIATING DECONTAMINATION SEQUENCE",
@@ -62,7 +62,7 @@ mod:RegisterFrenchLocale({
     ["unit.augmentor.active"] = "Distributeur de Primo Phage",
     ["unit.incinerator"] = "Incinérateur organique",
     -- Datachron messages.
-    ["chron.irradiated"] = "(.*) est irradiée.",
+    ["chron.irradiated"] = "([^%s]+%s[^%s]+) est irradiée.",
     ["chron.transmission"] = "ENCLENCHEMENT DE LA TRANSMISSION DU TECHNOPHAGE",
     ["cast.incinerator.disintegrate"] = "Désintégration",
     -- Bars messages.
@@ -231,26 +231,31 @@ function mod:OnIncineratorCreated(id, unit, name)
   core:WatchUnit(unit, core.E.TRACK_CASTS)
 end
 
-function mod:OnDatachron(sMessage)
-  local sPlayerNameIrradiate = sMessage:match(self.L["chron.irradiated"])
-  if sPlayerNameIrradiate then
-    -- Sometime it's 26s, sometime 27s or 28s.
-    mod:AddTimerBar("NEXT_IRRADIATE", "msg.irradiate", 26, mod:GetSetting("SoundNextIrradiateCountDown"))
-    if mod:GetSetting("LineRadiation") then
-      local tMemberUnit = GetPlayerUnitByName(sPlayerNameIrradiate)
-      if tMemberUnit then
-        local memberId = tMemberUnit:GetId()
-        if not tMemberUnit:IsThePlayer() then
-          local o = core:AddLineBetweenUnits("RADIATION", mod.player.id, memberId, 3, "cyan")
-          o:SetMinLengthVisible(10)
-        end
+function mod:OnIncineratorDestroyed(id, unit, name)
+  core:RemoveSimpleLine("INCINERATOR_BEAM")
+end
+
+function mod:OnIrradiated(message, name)
+  -- Sometime it's 26s, sometime 27s or 28s.
+  mod:AddTimerBar("NEXT_IRRADIATE", "msg.irradiate", 26, mod:GetSetting("SoundNextIrradiateCountDown"))
+  if mod:GetSetting("LineRadiation") then
+    local tMemberUnit = GetPlayerUnitByName(name)
+    if tMemberUnit then
+      local memberId = tMemberUnit:GetId()
+      if not tMemberUnit:IsThePlayer() then
+        local o = core:AddLineBetweenUnits("RADIATION", mod.player.id, memberId, 3, "cyan")
+        o:SetMinLengthVisible(10)
       end
     end
-  elseif sMessage == self.L["chron.transmission"] then
-    mod:AddTimerBar("NEXT_IRRADIATE", "msg.irradiate", 40, mod:GetSetting("SoundNextIrradiateCountDown"))
-  elseif sMessage == self.L["chron.corrupted"] then
-    bIsPhaseUnder20Poucent = true
   end
+end
+
+function mod:OnTransmission(message)
+  mod:AddTimerBar("NEXT_IRRADIATE", "msg.irradiate", 40, mod:GetSetting("SoundNextIrradiateCountDown"))
+end
+
+function mod:OnCorrupted(message)
+  bIsPhaseUnder20Poucent = true
 end
 
 function mod:OnAugmentorHealthChanged(id, percent, name)
@@ -396,3 +401,6 @@ mod:RegisterUnitEvents("unit.incinerator", {
     }
   }
 )
+mod:RegisterDatachronEvent("chron.corrupted", core.E.COMPARE_EQUAL, mod.OnCorrupted)
+mod:RegisterDatachronEvent("chron.transmission", core.E.COMPARE_EQUAL, mod.OnTransmission)
+mod:RegisterDatachronEvent("chron.irradiated", core.E.COMPARE_MATCH, mod.OnIrradiated)
