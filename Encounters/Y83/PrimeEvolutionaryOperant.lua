@@ -174,21 +174,21 @@ local INCUBATION_REGROUP_ZONE = {
 ----------------------------------------------------------------------------------------------------
 -- Locals.
 ----------------------------------------------------------------------------------------------------
-local nRadiationEndTime
+local radiationEndTime
 local painSuppressorsFadeTime
-local tPrimeOperant2ZoneIndex
-local nPrimeDistributorId
-local bIsPhaseUnder20Poucent
+local primeOperant2ZoneIndex
+local primeDistributorId
+local isPhaseUnder20Poucent
 
 ----------------------------------------------------------------------------------------------------
 -- Encounter description.
 ----------------------------------------------------------------------------------------------------
 function mod:OnBossEnable()
-  nRadiationEndTime = 0
+  radiationEndTime = 0
   painSuppressorsFadeTime = 0
-  tPrimeOperant2ZoneIndex = {}
-  nPrimeDistributorId = nil
-  bIsPhaseUnder20Poucent = false
+  primeOperant2ZoneIndex = {}
+  primeDistributorId = nil
+  isPhaseUnder20Poucent = false
   mod:AddTimerBar("NEXT_IRRADIATE", "msg.irradiate", 27, mod:GetSetting("SoundNextIrradiateCountDown"))
   if mod:GetSetting("LinesOnBosses") then
     for i, Vectors in next, STATIC_LINES do
@@ -209,11 +209,11 @@ function mod:OnOperantCreated(id, unit, name)
   if tPosition.x < ORGANIC_INCINERATOR.x then
     priority = 1
     core:MarkUnit(unit, 51, "L")
-    tPrimeOperant2ZoneIndex[id] = INCUBATION_ZONE_WEST
+    primeOperant2ZoneIndex[id] = INCUBATION_ZONE_WEST
   else
     priority = 3
     core:MarkUnit(unit, 51, "R")
-    tPrimeOperant2ZoneIndex[id] = INCUBATION_ZONE_EST
+    primeOperant2ZoneIndex[id] = INCUBATION_ZONE_EST
   end
   mod:AddUnit(unit, nil, priority)
 end
@@ -223,8 +223,8 @@ function mod:OnDistributorCreated(id, unit, name)
   core:WatchUnit(unit, core.E.TRACK_BUFFS + core.E.TRACK_HEALTH)
   core:MarkUnit(unit, 51, "M")
   core:AddSimpleLine("CLEAVE_"..id, id, 0, 15, 0, 5, "green")
-  tPrimeOperant2ZoneIndex[id] = INCUBATION_ZONE_NORTH
-  nPrimeDistributorId = id
+  primeOperant2ZoneIndex[id] = INCUBATION_ZONE_NORTH
+  primeDistributorId = id
 end
 
 function mod:OnIncineratorCreated(id, unit, name)
@@ -252,14 +252,14 @@ function mod:OnTransmission(message)
 end
 
 function mod:OnCorrupted(message)
-  bIsPhaseUnder20Poucent = true
+  isPhaseUnder20Poucent = true
 end
 
 function mod:OnAugmentorHealthChanged(id, percent, name)
   if mod:IsMidphaseClose(name, percent) then
     mod:AddMsg("SWITCH", "SWITCH SOON", 5, mod:GetSetting("SoundSwitch") and "Long")
   elseif percent == 20 then
-    tPrimeOperant2ZoneIndex[id] = nil
+    primeOperant2ZoneIndex[id] = nil
   end
 end
 
@@ -267,8 +267,8 @@ function mod:OnStrainIncubationAdd(id, spellId, stack, timeRemaining, name, unit
   if mod:GetSetting("PictureIncubation") then
     core:AddPicture("INCUBATION_"..id, unitTarget, "Crosshair", 20)
   end
-  if mod:GetSetting("IncubationRegroupZone") and nPrimeDistributorId then
-    local nIndex = tPrimeOperant2ZoneIndex[nPrimeDistributorId]
+  if mod:GetSetting("IncubationRegroupZone") and primeDistributorId then
+    local nIndex = primeOperant2ZoneIndex[primeDistributorId]
     if nIndex then
       local sColor = unitTarget:IsThePlayer() and "ffff00ff" or "60ff00ff"
       local Vector = INCUBATION_REGROUP_ZONE[nIndex]
@@ -282,8 +282,8 @@ end
 
 function mod:OnRadiationBathAdd(id, spellId, stack, timeRemaining, name, unitCaster, unitTarget)
   local currentTime = GetGameTime()
-  if nRadiationEndTime < currentTime then
-    nRadiationEndTime = currentTime + 12
+  if radiationEndTime < currentTime then
+    radiationEndTime = currentTime + 12
     if mod:GetSetting("LineRadiation") then
       local o = core:AddLineBetweenUnits("RADIATION", mod.player.unit, unitTarget:GetPosition(), 3, "cyan")
       o:SetMinLengthVisible(10)
@@ -321,10 +321,10 @@ function mod:OnCompromisedCircuitryAdd(id, spellId, stack, timeRemaining, name, 
   for i, Vector in next, INCUBATION_REGROUP_ZONE do
     core:RemovePicture("IZ" .. i)
   end
-  if not bIsPhaseUnder20Poucent then
-    nPrimeDistributorId = id
+  if not isPhaseUnder20Poucent then
+    primeDistributorId = id
     if mod:GetSetting("IncubationRegroupZone") then
-      local nIndex = tPrimeOperant2ZoneIndex[id]
+      local nIndex = primeOperant2ZoneIndex[id]
       if nIndex then
         local Vector = INCUBATION_REGROUP_ZONE[nIndex]
         core:AddPicture("IZ" .. nIndex, Vector, "ClientSprites:LootCloseBox_Holo", 30)
