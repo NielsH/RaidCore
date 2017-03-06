@@ -122,7 +122,10 @@ local DEBUFFS = {
   PAIN_SUPPRESSORS = 81783, -- HM debuff, Laser interrupt
 }
 local BUFFS = {
-  NANOSTRAIN_INFUSION = 50075, -- Wall buff on boss
+  NANOSTRAIN_INFUSION = { -- Wall buff on boss
+    EASY = 50075,
+    HARD = 80483,
+  },
   COMPROMISED_CIRCUITRY = 48735, -- Active boss
 }
 
@@ -369,8 +372,9 @@ mod:RegisterUnitEvents({
     [BUFFS.COMPROMISED_CIRCUITRY] = {
       [core.E.BUFF_ADD] = mod.OnCompromisedCircuitryAdd,
     },
-    [BUFFS.NANOSTRAIN_INFUSION] = {
-      [core.E.BUFF_UPDATE] = mod.OnNanostrainInfusionUpdate,
+    [core.E.BUFF_UPDATE] = {
+      [BUFFS.NANOSTRAIN_INFUSION.EASY] = mod.OnNanostrainInfusionUpdate,
+      [BUFFS.NANOSTRAIN_INFUSION.HARD] = mod.OnNanostrainInfusionUpdate,
     },
   }
 )
