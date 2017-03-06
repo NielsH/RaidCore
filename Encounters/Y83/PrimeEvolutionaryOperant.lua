@@ -265,14 +265,14 @@ end
 
 function mod:OnStrainIncubationAdd(id, spellId, stack, timeRemaining, name, unitCaster, unitTarget)
   if mod:GetSetting("PictureIncubation") then
-    core:AddPicture("INCUBATION_"..id, id, "Crosshair", 20)
+    core:AddPicture("INCUBATION_"..id, unitTarget, "Crosshair", 20)
   end
   if mod:GetSetting("IncubationRegroupZone") and nPrimeDistributorId then
     local nIndex = tPrimeOperant2ZoneIndex[nPrimeDistributorId]
     if nIndex then
       local sColor = unitTarget:IsThePlayer() and "ffff00ff" or "60ff00ff"
       local Vector = INCUBATION_REGROUP_ZONE[nIndex]
-      local o = core:AddLineBetweenUnits("SAFE_ZONE_GO_"..id, id, Vector, 5, sColor, 10)
+      local o = core:AddLineBetweenUnits("SAFE_ZONE_GO_"..id, unitTarget, Vector, 5, sColor, 10)
       o:SetSprite("CRB_MegamapSprites:sprMap_PlayerArrowNoRing", 20)
       o:SetMinLengthVisible(5)
       o:SetMaxLengthVisible(50)
@@ -285,7 +285,7 @@ function mod:OnRadiationBathAdd(id, spellId, stack, timeRemaining, name, unitCas
   if nRadiationEndTime < currentTime then
     nRadiationEndTime = currentTime + 12
     if mod:GetSetting("LineRadiation") then
-      local o = core:AddLineBetweenUnits("RADIATION", mod.player.id, unitTarget:GetPosition(), 3, "cyan")
+      local o = core:AddLineBetweenUnits("RADIATION", mod.player.unit, unitTarget:GetPosition(), 3, "cyan")
       o:SetMinLengthVisible(10)
       mod:ScheduleTimer(function()
           core:RemoveLineBetweenUnits("RADIATION")
