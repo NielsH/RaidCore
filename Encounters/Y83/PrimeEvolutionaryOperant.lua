@@ -333,7 +333,6 @@ function mod:OnCompromisedCircuitryAdd(id, spellId, stack, timeRemaining, name, 
   end
 end
 
---TODO: Filter out dropping stacks
 function mod:OnNanostrainInfusionUpdate(id, spellId, stack, timeRemaining, name, unitCaster, unitTarget)
   local nRemain = NANOSTRAIN_2_CORRUPTION_THRESHOLD - stack
   if nRemain == 2 or nRemain == 1 then
