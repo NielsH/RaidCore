@@ -92,11 +92,6 @@ mod:RegisterUnitEvents({"unit.muburu"},{
   }
 )
 
-mod:RegisterUnitEvents({"unit.abomination"},{
-    [core.E.UNIT_CREATED] = mod.OnAbominationCreated,
-  }
-)
-
 mod:RegisterUnitEvents("unit.survivor",{
     [core.E.UNIT_CREATED] = mod.OnSurvivorCreated,
     [core.E.UNIT_DESTROYED] = mod.OnSurvivorDestroyed,
