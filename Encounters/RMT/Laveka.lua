@@ -36,6 +36,7 @@ mod:RegisterEnglishLocale({
     ["cast.laveka.essence"] = "Essence Void",
     ["cast.laveka.cacophony"] = "Cacophony of Souls",
     ["cast.laveka.expulsion"] = "Expulsion of Souls",
+    ["cast.laveka.rend"] = "Rend the Spirit Veil",
     ["cast.titan.bulwark"] = "Necrotic Bulwark",
     ["cast.titan.manifest"] = "Manifest",
     ["cast.adds.explosion"] = "Spirit Ire",
@@ -45,6 +46,7 @@ mod:RegisterEnglishLocale({
     ["chron.laveka.death"] = "Death is only the beginning...",
     ["chron.laveka.cacophony"] = "Laveka unleashes a Cacaphony of Souls, devastating the Realm of the Living",
     ["chron.realm.living"] = "Your spirit has returned to the mortal realm.",
+    ["chron.realm.lastphase"] = "Laveka uses the Mask of Mog-Mog to rend the veil between this world and the next.",
     -- Messages.
     ["msg.laveka.soulfire.you"] = "SOULFIRE ON YOU",
     ["msg.laveka.spirit_of_soulfire"] = "Spirit of Soulfire",
@@ -499,6 +501,11 @@ function mod:OnCacophonyStart()
   essenceNumber = 0
 end
 
+function mod:OnLastPhase()
+  mod:StopSoulEaterTimer()
+  mod:RemoveTimerBar("ADDS_TIMER")
+end
+
 ----------------------------------------------------------------------------------------------------
 -- Bind event handlers.
 ----------------------------------------------------------------------------------------------------
@@ -575,3 +582,4 @@ mod:RegisterUnitEvents(core.E.ALL_UNITS,{
     },
   }
 )
+mod:RegisterDatachronEvent("chron.laveka.lastphase", core.E.COMPARE_EQUAL, mod.OnLastPhase)
