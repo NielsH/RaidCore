@@ -45,8 +45,8 @@ mod:RegisterEnglishLocale({
     ["chron.laveka.soul_fire"] = "Laveka sets ([^%s]+%s[^']+)'s soul ablaze!",
     ["chron.laveka.death"] = "Death is only the beginning...",
     ["chron.laveka.cacophony"] = "Laveka unleashes a Cacaphony of Souls, devastating the Realm of the Living",
+    ["chron.laveka.lastphase"] = "Laveka uses the Mask of Mog-Mog to rend the veil between this world and the next.",
     ["chron.realm.living"] = "Your spirit has returned to the mortal realm.",
-    ["chron.realm.lastphase"] = "Laveka uses the Mask of Mog-Mog to rend the veil between this world and the next.",
     -- Messages.
     ["msg.laveka.soulfire.you"] = "SOULFIRE ON YOU",
     ["msg.laveka.spirit_of_soulfire"] = "Spirit of Soulfire",
