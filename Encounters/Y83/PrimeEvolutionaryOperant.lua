@@ -227,6 +227,11 @@ function mod:OnDistributorCreated(id, unit, name)
   primeDistributorId = id
 end
 
+function mod:OnStrainIncubationRemove(id)
+  core:RemovePicture("INCUBATION_"..id)
+  core:RemoveLineBetweenUnits("SAFE_ZONE_GO_"..id)
+end
+
 function mod:OnIncineratorCreated(id, unit, name)
   core:WatchUnit(unit, core.E.TRACK_CASTS)
 end
@@ -340,6 +345,7 @@ end
 mod:RegisterUnitEvents(core.E.ALL_UNITS, {
     [DEBUFFS.STRAIN_INCUBATION] = {
       [core.E.DEBUFF_ADD] = mod.OnStrainIncubationAdd,
+      [core.E.DEBUFF_REMOVE] = mod.OnStrainIncubationRemove,
     },
     [DEBUFFS.PAIN_SUPPRESSORS] = {
       [core.E.DEBUFF_ADD] = mod.OnPainSuppressorsAdd,
