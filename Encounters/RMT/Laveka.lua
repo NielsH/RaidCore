@@ -36,6 +36,7 @@ mod:RegisterEnglishLocale({
     ["cast.laveka.essence"] = "Essence Void",
     ["cast.laveka.cacophony"] = "Cacophony of Souls",
     ["cast.laveka.expulsion"] = "Expulsion of Souls",
+    ["cast.laveka.rend"] = "Rend the Spirit Veil",
     ["cast.titan.bulwark"] = "Necrotic Bulwark",
     ["cast.titan.manifest"] = "Manifest",
     ["cast.adds.explosion"] = "Spirit Ire",
@@ -44,6 +45,7 @@ mod:RegisterEnglishLocale({
     ["chron.laveka.soul_fire"] = "Laveka sets ([^%s]+%s[^']+)'s soul ablaze!",
     ["chron.laveka.death"] = "Death is only the beginning...",
     ["chron.laveka.cacophony"] = "Laveka unleashes a Cacaphony of Souls, devastating the Realm of the Living",
+    ["chron.laveka.lastphase"] = "Laveka uses the Mask of Mog-Mog to rend the veil between this world and the next.",
     ["chron.realm.living"] = "Your spirit has returned to the mortal realm.",
     -- Messages.
     ["msg.laveka.soulfire.you"] = "SOULFIRE ON YOU",
@@ -69,12 +71,14 @@ mod:RegisterFrenchLocale({
     ["unit.phantom"] = "Fantôme",
     -- Cast names.
     ["cast.laveka.cacophony"] = "Cacophonie des âmes",
+    -- ["cast.laveka.rend"] = "TODO",
     ["cast.titan.manifest"] = "Manifeste",
     ["cast.adds.explosion"] = "Courroux spirituel",
     -- Datachrons.
     ["chron.laveka.mask"] = "Vous sentez votre esprit attiré par le masque de Mog-Mog.",
     ["chron.laveka.cacophony"] = "Laveka libère une Cacophonie d'âmes qui dévaste le royaume des vivants.",
     ["chron.realm.living"] = "Votre esprit est revenu au royaume des mortels.",
+    -- ["chron.laveka.lastphase"] = "TODO",
   }
 )
 ----------------------------------------------------------------------------------------------------
@@ -499,6 +503,11 @@ function mod:OnCacophonyStart()
   essenceNumber = 0
 end
 
+function mod:OnLastPhase()
+  mod:StopSoulEaterTimer()
+  mod:RemoveTimerBar("ADDS_TIMER")
+end
+
 ----------------------------------------------------------------------------------------------------
 -- Bind event handlers.
 ----------------------------------------------------------------------------------------------------
@@ -575,3 +584,4 @@ mod:RegisterUnitEvents(core.E.ALL_UNITS,{
     },
   }
 )
+mod:RegisterDatachronEvent("chron.laveka.lastphase", core.E.COMPARE_EQUAL, mod.OnLastPhase)
