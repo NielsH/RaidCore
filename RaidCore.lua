@@ -1154,6 +1154,7 @@ function RaidCore:OnStartTestScenario()
   local function GetProgress2(nProgress)
     return nProgress + 0.5
   end
+  self:MarkUnit(tPlayerUnit, self.E.LOCATION_STATIC_NAME, "4")
   self:AddTimerBar("TEST1", "End of test scenario", 60, nil, { sColor = "red" })
   self:AddTimerBar("TEST2", "Timer with count down", 8, nil, { sColor = "blue", bEmphasize = true })
   self:AddTimerBar("TEST3", "Timer for a static circle", 15, nil, { sColor = "xkcdBarneyPurple" })
@@ -1189,6 +1190,26 @@ function RaidCore:OnStartTestScenario()
     end,
     10
   )
+  self.tScenarioTestTimers[4] = self:ScheduleTimer(function()
+      self:DropMark(tPlayerUnit:GetId())
+    end,
+    4
+  )
+  self.tScenarioTestTimers[5] = self:ScheduleTimer(function()
+      self:MarkUnit(tPlayerUnit, self.E.LOCATION_STATIC_NAME, "1")
+    end,
+    3
+  )
+  self.tScenarioTestTimers[6] = self:ScheduleTimer(function()
+      self:MarkUnit(tPlayerUnit, self.E.LOCATION_STATIC_NAME, "2")
+    end,
+    2
+  )
+  self.tScenarioTestTimers[6] = self:ScheduleTimer(function()
+      self:MarkUnit(tPlayerUnit, self.E.LOCATION_STATIC_NAME, "3")
+    end,
+    1
+  )
   self:SetWorldMarker("TEST80", "1", GetPlayerUnit():GetPosition())
 end
 
@@ -1203,7 +1224,8 @@ function RaidCore:OnStopTestScenario()
   end
   self:RemoveMsg("TEST1")
   self:RemoveUnit(GetPlayerUnit():GetId())
-  if targetId ~= 0 then
+  self:DropMark(GetPlayerUnit():GetId())
+  if targetId then
     self:RemoveUnit("UNIT_SPACER")
     self:RemoveUnit(targetId)
     targetId = nil
