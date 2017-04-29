@@ -844,6 +844,13 @@ function RaidCore:SetMark2UnitBar(nId, sMark)
   end
 end
 
+function RaidCore:DropMark2UnitBar(nId)
+  local tBar = UnitManager.tBars[nId]
+  if tBar then
+    tBar.sMark = nil
+  end
+end
+
 function RaidCore:BarsRemoveAll()
   for _, tManager in next, _tManagers do
     tManager:RemoveAllBars()
