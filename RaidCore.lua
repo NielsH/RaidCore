@@ -826,6 +826,7 @@ function RaidCore:DropMark(key)
     markFrame:SetUnit(nil)
     markFrame:Destroy()
     self.mark[key] = nil
+    self:DropMark2UnitBar(key)
   end
 end
 
