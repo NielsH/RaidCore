@@ -81,6 +81,31 @@ mod:RegisterFrenchLocale({
     -- ["chron.laveka.lastphase"] = "TODO",
   }
 )
+mod:RegisterGermanLocale({
+    -- Unit names.
+    -- ["unit.phantom"] = "TODO",
+    ["unit.essence"] = "Essenzleere",
+    -- ["unit.tortued_apparition"] = "TODO",
+    -- ["unit.orb"] = "TODO",
+    -- ["unit.boneclaw"] = "TODO",
+    -- ["unit.titan"] = "TODO",
+    -- Cast names.
+    -- ["cast.essence.surge"] = "TODO", -- Essence fully materialized
+    -- ["cast.laveka.devoursouls"] = "TODO",
+    -- ["cast.laveka.animate_bones"] = "TODO",
+    -- ["cast.laveka.cacophony"] = "TODO",
+    -- ["cast.laveka.expulsion"] = "TODO",
+    -- ["cast.laveka.rend"] = "TODO",
+    -- ["cast.titan.bulwark"] = "TODO",
+    -- ["cast.titan.manifest"] = "TODO",
+    -- ["cast.adds.explosion"] = "TODO",
+    -- Datachrons.
+    ["chron.laveka.mask"] = "Du spürst, wie die Maske von Mog-Mog deinen Geist angreift.",
+    -- ["chron.laveka.cacophony"] = "TODO",
+    -- ["chron.laveka.lastphase"] = "TODO",
+    -- ["chron.realm.living"] = "TODO",
+  }
+)
 ----------------------------------------------------------------------------------------------------
 -- Settings.
 ----------------------------------------------------------------------------------------------------
