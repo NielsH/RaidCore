@@ -231,10 +231,6 @@ function mod:OnIncineratorCreated(id, unit, name)
   core:WatchUnit(unit, core.E.TRACK_CASTS)
 end
 
-function mod:OnIncineratorDestroyed(id, unit, name)
-  core:RemoveSimpleLine("INCINERATOR_BEAM")
-end
-
 function mod:OnIrradiated(message, name)
   -- Sometime it's 26s, sometime 27s or 28s.
   mod:AddTimerBar("NEXT_IRRADIATE", "msg.irradiate", 26, mod:GetSetting("SoundNextIrradiateCountDown"))
@@ -308,15 +304,6 @@ function mod:OnPainSuppressorsAdd(id, spellId, stack, timeRemaining, name, unitC
   end
 end
 
-function mod:OnStrainIncubationRemove(id)
-  core:RemovePicture("INCUBATION_"..id)
-  core:RemoveLineBetweenUnits("SAFE_ZONE_GO_"..id)
-end
-
-function mod:OnAnyUnitDestroyed(id, unit, name)
-  mod:OnStrainIncubationRemove(id)
-end
-
 function mod:OnCompromisedCircuitryAdd(id, spellId, stack, timeRemaining, name, unitCaster, unitTarget)
   for i, Vector in next, INCUBATION_REGROUP_ZONE do
     core:RemovePicture("IZ" .. i)
@@ -351,10 +338,8 @@ end
 -- Bind event handlers.
 ----------------------------------------------------------------------------------------------------
 mod:RegisterUnitEvents(core.E.ALL_UNITS, {
-    [core.E.UNIT_DESTROYED] = mod.OnAnyUnitDestroyed,
     [DEBUFFS.STRAIN_INCUBATION] = {
       [core.E.DEBUFF_ADD] = mod.OnStrainIncubationAdd,
-      [core.E.DEBUFF_REMOVE] = mod.OnStrainIncubationRemove,
     },
     [DEBUFFS.PAIN_SUPPRESSORS] = {
       [core.E.DEBUFF_ADD] = mod.OnPainSuppressorsAdd,
@@ -391,7 +376,6 @@ mod:RegisterUnitEvents("unit.augmentor.active", {
 )
 mod:RegisterUnitEvents("unit.incinerator", {
     [core.E.UNIT_CREATED] = mod.OnIncineratorCreated,
-    [core.E.UNIT_DESTROYED] = mod.OnIncineratorDestroyed,
     ["cast.incinerator.disintegrate"] = {
       [core.E.CAST_START] = mod.OnDisintegrateStart,
     }
