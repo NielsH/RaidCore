@@ -278,7 +278,6 @@ function mod:OnAnyUnitDestroyed(id, unit, name)
   local forceClear = false
   if name == player.name then
     forceClear = true
-    mod:RemoveBoneclawLines(true)
   end
   mod:RemoveSoulfireLine(name, forceClear)
   mod:RemoveNecroticBreathMark(id)
@@ -565,7 +564,6 @@ end
 
 function mod:OnBoneclawDestroyed(id, unit, name)
   if boneclawsOnYou[id] then
-    core:RemoveLineBetweenUnits(id)
     boneclawsOnYou[id] = nil
   end
 end
