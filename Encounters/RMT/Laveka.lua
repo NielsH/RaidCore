@@ -527,10 +527,10 @@ function mod:RemoveLostSoulLine()
   core:RemoveLineBetweenUnits("LOST_SOUL_LINE")
 end
 
-function mod:RemoveBoneclawLines(removeAll)
+function mod:RemoveBoneclawLines()
   local toRemove = {}
   for id, boneclaw in next, boneclawsOnYou do
-    if not boneclaw.unit:IsValid() or removeAll then
+    if not boneclaw.unit:IsValid() then
       core:RemoveLineBetweenUnits(id)
       table.insert(toRemove, id)
     end
@@ -548,17 +548,13 @@ function mod:OnBoneclawGazeAdd(id, spellId, stacks, timeRemaining, name, unitCas
   end
 end
 
-function mod:RemoveInvalidBoneclawLines()
-  mod:RemoveBoneclawLines(false)
-end
-
 function mod:OnBoneclawGazeRemove(id, spellId, name, unitCaster)
   if unitCaster and unitCaster:IsValid() then
     local boneclawId = unitCaster:GetId()
     boneclawsOnYou[boneclawId] = nil
     core:RemoveLineBetweenUnits(boneclawId)
   else
-    mod:RemoveInvalidBoneclawLines()
+    mod:RemoveBoneclawLines()
   end
 end
 
