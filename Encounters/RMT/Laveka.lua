@@ -217,6 +217,8 @@ local lastSoulfireName
 local orbitColor
 local drawOrbitTimer
 local boneclawsOnYou
+local boneclawCheckDeadTimer = ApolloTimer.Create(1.0, true, "RemoveBoneclawLines", mod)
+boneclawCheckDeadTimer:Stop()
 ----------------------------------------------------------------------------------------------------
 -- Encounter description.
 ----------------------------------------------------------------------------------------------------
@@ -239,6 +241,7 @@ end
 
 function mod:OnBossDisable()
   mod:StopSoulEaterTimer()
+  boneclawCheckDeadTimer:Stop()
 end
 
 function mod:StartSoulEaterTimer(seconds)
@@ -541,6 +544,7 @@ function mod:RemoveBoneclawLines()
 end
 
 function mod:OnBoneclawGazeAdd(id, spellId, stacks, timeRemaining, name, unitCaster)
+  boneclawCheckDeadTimer:Start()
   if name == player.name and unitCaster and unitCaster:IsValid() then
     local boneclawId = unitCaster:GetId()
     boneclawsOnYou[boneclawId] = {id = boneclawId, unit = unitCaster}
@@ -549,6 +553,7 @@ function mod:OnBoneclawGazeAdd(id, spellId, stacks, timeRemaining, name, unitCas
 end
 
 function mod:OnBoneclawGazeRemove(id, spellId, name, unitCaster)
+  boneclawCheckDeadTimer:Stop()
   if unitCaster and unitCaster:IsValid() then
     local boneclawId = unitCaster:GetId()
     boneclawsOnYou[boneclawId] = nil
