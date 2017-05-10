@@ -530,7 +530,7 @@ end
 function mod:RemoveBoneclawLines()
   local toRemove = {}
   for id, boneclaw in next, boneclawsOnYou do
-    if not boneclaw.unit:IsValid() then
+    if not boneclaw.unit:IsValid() or boneclaw.unit:IsDead() then
       core:RemoveLineBetweenUnits(id)
       table.insert(toRemove, id)
     end
