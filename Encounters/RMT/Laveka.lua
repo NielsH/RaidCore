@@ -113,6 +113,7 @@ mod:RegisterGermanLocale({
 mod:RegisterDefaultSetting("LineCleanse", false)
 mod:RegisterDefaultSetting("LineTitan", false)
 mod:RegisterDefaultSetting("LineLostSouls")
+mod:RegisterDefaultSetting("LineToYourBoneclaws")
 mod:RegisterDefaultSetting("MarkHealingDebuff", false)
 mod:RegisterDefaultSetting("MarkCardinal")
 -- Messages.
@@ -544,11 +545,11 @@ function mod:RemoveBoneclawLines()
 end
 
 function mod:OnBoneclawGazeAdd(id, spellId, stacks, timeRemaining, name, unitCaster)
-  boneclawCheckDeadTimer:Start()
-  if name == player.name and unitCaster and unitCaster:IsValid() then
+  if mod:GetSetting("LineToYourBoneclaws") and name == player.name and unitCaster and unitCaster:IsValid() then
     local boneclawId = unitCaster:GetId()
     boneclawsOnYou[boneclawId] = {id = boneclawId, unit = unitCaster}
     core:AddLineBetweenUnits(boneclawId, player.unit, unitCaster, 10, "xkcdOrange")
+    boneclawCheckDeadTimer:Start()
   end
 end
 
