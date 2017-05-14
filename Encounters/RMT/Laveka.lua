@@ -113,6 +113,7 @@ mod:RegisterGermanLocale({
 mod:RegisterDefaultSetting("LineCleanse", false)
 mod:RegisterDefaultSetting("LineTitan", false)
 mod:RegisterDefaultSetting("LineLostSouls")
+mod:RegisterDefaultSetting("LineToYourBoneclaws")
 mod:RegisterDefaultSetting("MarkHealingDebuff", false)
 mod:RegisterDefaultSetting("MarkCardinal")
 -- Messages.
@@ -162,6 +163,7 @@ local DEBUFFS = {
   ECHOES_OF_THE_AFTERLIFE = 75525, -- stacking debuff
   SOULFIRE = 75574, -- Debuff to be cleansed
   NECROTIC_BREATH = 75608, -- Debuff to be healed
+  BONECLAW_GAZE = 85609, -- Boneclaw target
 }
 
 local BUFFS = {
@@ -215,6 +217,9 @@ local soulEatersActive
 local lastSoulfireName
 local orbitColor
 local drawOrbitTimer
+local boneclawsOnYou
+local boneclawCheckDeadTimer = ApolloTimer.Create(1.0, true, "RemoveBoneclawLines", mod)
+boneclawCheckDeadTimer:Stop()
 ----------------------------------------------------------------------------------------------------
 -- Encounter description.
 ----------------------------------------------------------------------------------------------------
@@ -225,6 +230,7 @@ function mod:OnBossEnable()
   expulsionInThisRealm = false
   lastSpiritOfSoulfireStack = 0
   essences = {}
+  boneclawsOnYou = {}
   player = {}
   player.unit = GameLib.GetPlayerUnit()
   player.id = player.unit:GetId()
@@ -236,6 +242,7 @@ end
 
 function mod:OnBossDisable()
   mod:StopSoulEaterTimer()
+  boneclawCheckDeadTimer:Stop()
 end
 
 function mod:StartSoulEaterTimer(seconds)
@@ -437,7 +444,7 @@ end
 
 function mod:OnEssenceSurgeStart(id)
   if mod:GetSetting("SoundEssence"..essences[id].number) then
-    mod:AddMsg("ESSENCE_CAST", "msg.essence.interrupt", 2, "Inferno", "xkcdRed")
+    mod:AddMsg("ESSENCE_CAST", "msg.essence.interrupt", 2, "Inferno", "xkcdOrange")
   end
 end
 
@@ -524,6 +531,45 @@ function mod:RemoveLostSoulLine()
   core:RemoveLineBetweenUnits("LOST_SOUL_LINE")
 end
 
+function mod:RemoveBoneclawLines()
+  local toRemove = {}
+  for id, boneclaw in next, boneclawsOnYou do
+    if not boneclaw.unit:IsValid() or boneclaw.unit:IsDead() then
+      core:RemoveLineBetweenUnits(id)
+      table.insert(toRemove, id)
+    end
+  end
+  for i = 1, #toRemove do
+    boneclawsOnYou[toRemove[i]] = nil
+  end
+end
+
+function mod:OnBoneclawGazeAdd(id, spellId, stacks, timeRemaining, name, unitCaster)
+  if mod:GetSetting("LineToYourBoneclaws") and name == player.name and unitCaster and unitCaster:IsValid() then
+    local boneclawId = unitCaster:GetId()
+    boneclawsOnYou[boneclawId] = {id = boneclawId, unit = unitCaster}
+    core:AddLineBetweenUnits(boneclawId, player.unit, unitCaster, 10, "xkcdOrange")
+    boneclawCheckDeadTimer:Start()
+  end
+end
+
+function mod:OnBoneclawGazeRemove(id, spellId, name, unitCaster)
+  boneclawCheckDeadTimer:Stop()
+  if unitCaster and unitCaster:IsValid() then
+    local boneclawId = unitCaster:GetId()
+    boneclawsOnYou[boneclawId] = nil
+    core:RemoveLineBetweenUnits(boneclawId)
+  else
+    mod:RemoveBoneclawLines()
+  end
+end
+
+function mod:OnBoneclawDestroyed(id, unit, name)
+  if boneclawsOnYou[id] then
+    boneclawsOnYou[id] = nil
+  end
+end
+
 function mod:OnCacophonyStart()
   essenceNumber = 0
 end
@@ -584,6 +630,11 @@ mod:RegisterUnitEvents("unit.laveka",{
   }
 )
 
+mod:RegisterUnitEvents("unit.boneclaw",{
+    [core.E.UNIT_DESTROYED] = mod.OnBoneclawDestroyed,
+  }
+)
+
 mod:RegisterUnitEvents(core.E.ALL_UNITS,{
     [core.E.UNIT_CREATED] = mod.OnAnyUnitCreated,
     [core.E.UNIT_DESTROYED] = mod.OnAnyUnitDestroyed,
@@ -607,6 +658,10 @@ mod:RegisterUnitEvents(core.E.ALL_UNITS,{
       [core.E.DEBUFF_ADD] = mod.OnNecroticBreathAdd,
       [core.E.DEBUFF_REMOVE] = mod.OnNecroticBreathRemove,
     },
+    [DEBUFFS.BONECLAW_GAZE] = {
+      [core.E.DEBUFF_ADD] = mod.OnBoneclawGazeAdd,
+      [core.E.DEBUFF_REMOVE] = mod.OnBoneclawGazeRemove,
+    }
   }
 )
 mod:RegisterDatachronEvent("chron.laveka.lastphase", core.E.COMPARE_EQUAL, mod.OnLastPhase)
