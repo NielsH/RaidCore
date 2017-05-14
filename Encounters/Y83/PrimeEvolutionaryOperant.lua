@@ -48,11 +48,11 @@ mod:RegisterEnglishLocale({
     ["chron.decontamination"] = "INITIATING DECONTAMINATION SEQUENCE",
     -- Cast
     ["cast.incinerator.disintegrate"] = "Disintegrate",
-    ["cast.augmentor.digitize"] = "cast.augmentor.digitize",
+    ["cast.augmentor.digitize"] = "Digitize",
     ["cast.augmentor.injection"] = "Strain Injection",
     ["cast.augmentor.spike"] = "Corruption Spike",
     -- Bars messages.
-    ["msg.irradiate"] = "~Next irradiate",
+    ["msg.irradiate"] = "Next bath in ...",
     ["msg.corruption.warning"] = "%u STACKS BEFORE CORRUPTION",
   }
 )
