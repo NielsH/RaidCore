@@ -43,7 +43,7 @@ mod:RegisterEnglishLocale({
     ["unit.incinerator"] = "Organic Incinerator",
     -- Datachron messages.
     ["chron.irradiated"] = "([^%s]+%s[^%s]+) is being irradiated!",
-    ["chron.transmission"] = "ENGAGING TECHNOPHAGE TRASMISSION",
+    ["chron.transmission"] = "ENGAGING TECHNO-PHAGE TRASMISSION",
     ["chron.corrupted"] = "A Prime Purifier has been corrupted!",
     ["chron.decontamination"] = "INITIATING DECONTAMINATION SEQUENCE",
     -- Cast
