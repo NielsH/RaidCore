@@ -8,6 +8,7 @@
 -- TODO
 ----------------------------------------------------------------------------------------------------
 local Apollo = require "Apollo"
+local ApolloTimer = require "ApolloTimer"
 local GameLib = require "GameLib"
 local Vector3 = require "Vector3"
 
@@ -25,7 +26,7 @@ mod:RegisterEnglishLocale({
     ["unit.phantom"] = "Phantom",
     ["unit.essence"] = "Essence Void",
     ["unit.tortued_apparition"] = "Tortured Apparition",
-    ["unit.orb"] = "Soul Eater",
+    ["unit.soul_eater"] = "Soul Eater",
     ["unit.boneclaw"] = "Risen Boneclaw",
     ["unit.titan"] = "Risen Titan",
     ["unit.lost_soul"] = "Lost Soul",
@@ -186,6 +187,10 @@ local TIMERS = {
   }
 }
 
+local IND_REASONS = {
+  SOUL_EATER_CAUGHT = 1,
+}
+
 local ROOM_CENTER = Vector3.New(-723.717773, 186.834915, -265.187195)
 
 local CARDINAL_MARKERS = {
@@ -217,6 +222,8 @@ local soulEatersActive
 local lastSoulfireName
 local orbitColor
 local drawOrbitTimer
+local currentSoulEater
+local soulEaters
 local boneclawsOnYou
 local boneclawCheckDeadTimer = ApolloTimer.Create(1.0, true, "RemoveBoneclawLines", mod)
 boneclawCheckDeadTimer:Stop()
@@ -225,10 +232,12 @@ boneclawCheckDeadTimer:Stop()
 ----------------------------------------------------------------------------------------------------
 function mod:OnBossEnable()
   essenceNumber = 0
+  currentSoulEater = 6
   isDeadRealm = false
   isMidphase = false
   expulsionInThisRealm = false
   lastSpiritOfSoulfireStack = 0
+  soulEaters = {}
   essences = {}
   boneclawsOnYou = {}
   player = {}
@@ -448,10 +457,39 @@ function mod:OnEssenceSurgeStart(id)
   end
 end
 
-function mod:OnSoulEaterCreated()
+function mod:OnSoulEaterCreated(id, unit, name)
+  soulEaters[id] = {
+    id = id,
+    index = currentSoulEater,
+    unit = unit
+  }
+
+  currentSoulEater = currentSoulEater - 1
+  if currentSoulEater == 0 then
+    currentSoulEater = 6
+  end
+
   if not soulEatersActive then
     soulEatersActive = true
     mod:DrawSoulEaterOrbits()
+  end
+end
+
+function mod:OnSoulEaterDestroyed(id, unit, name)
+  soulEaters[id] = nil
+end
+
+function mod:OnSoulEaterCaught(id, spellId, stacks, timeRemaining, name, unitCaster)
+  if unitCaster and unitCaster:IsValid() then
+    local index = soulEaters[unitCaster:GetId()].index
+    mod:RemoveSoulEaterOrbit(index)
+    mod:SendIndMessage(IND_REASONS.SOUL_EATER_CAUGHT, index)
+  end
+end
+
+function mod:ReceiveIndMessage(from, reason, data)
+  if reason == IND_REASONS.SOUL_EATER_CAUGHT then
+    mod:RemoveSoulEaterOrbit(data)
   end
 end
 
@@ -463,20 +501,20 @@ end
 
 function mod:DrawSoulEaterOrbits()
   for i = 1, #SOUL_EATER_ORBITS do
-    mod:DrawSoulEaterOrbit(i, i)
+    mod:DrawSoulEaterOrbit(i)
   end
 end
 
-function mod:DrawSoulEaterOrbit(id, index)
+function mod:DrawSoulEaterOrbit(index)
   local radius = SOUL_EATER_ORBITS[index]
-  if math.mod(id, 2) == 0 then
+  if math.mod(index, 2) == 0 then
     orbitColor = "xkcdWhite"
   else
     orbitColor = "xkcdRed"
   end
-  core:AddPolygon("ORBIT_"..id, ROOM_CENTER, radius.z, nil, 2, orbitColor, 40)
-  mod:SetWorldMarker("ORBIT_"..id.."up", id, ROOM_CENTER + radius)
-  mod:SetWorldMarker("ORBIT_"..id.."down", id, ROOM_CENTER - radius)
+  core:AddPolygon("ORBIT_"..index, ROOM_CENTER, radius.z, nil, 2, orbitColor, 40)
+  mod:SetWorldMarker("ORBIT_"..index.."up", index, ROOM_CENTER + radius)
+  mod:SetWorldMarker("ORBIT_"..index.."down", index, ROOM_CENTER - radius)
 end
 
 function mod:RemoveSoulEaterOrbits()
@@ -485,10 +523,10 @@ function mod:RemoveSoulEaterOrbits()
   end
 end
 
-function mod:RemoveSoulEaterOrbit(id)
-  core:RemovePolygon("ORBIT_"..id)
-  mod:DropWorldMarker("ORBIT_"..id.."up")
-  mod:DropWorldMarker("ORBIT_"..id.."down")
+function mod:RemoveSoulEaterOrbit(index)
+  core:RemovePolygon("ORBIT_"..index)
+  mod:DropWorldMarker("ORBIT_"..index.."up")
+  mod:DropWorldMarker("ORBIT_"..index.."down")
 end
 
 function mod:OnMidphaseStart()
@@ -590,21 +628,19 @@ mod:RegisterUnitEvents("unit.essence",{
     },
   }
 )
-
 mod:RegisterUnitEvents("unit.titan",{
     [core.E.UNIT_CREATED] = mod.OnTitanCreated,
   }
 )
-
 mod:RegisterUnitEvents("unit.lost_soul",{
     [core.E.UNIT_CREATED] = mod.OnLostSoulCreated,
-  })
-
-mod:RegisterUnitEvents("unit.orb",{
-    [core.E.UNIT_CREATED] = mod.OnSoulEaterCreated,
   }
 )
-
+mod:RegisterUnitEvents("unit.soul_eater",{
+    [core.E.UNIT_CREATED] = mod.OnSoulEaterCreated,
+    [core.E.UNIT_DESTROYED] = mod.OnSoulEaterDestroyed,
+  }
+)
 mod:RegisterUnitEvents("unit.laveka",{
     [core.E.UNIT_CREATED] = mod.OnLavekaCreated,
     [core.E.HEALTH_CHANGED] = mod.OnLavekaHealthChanged,
@@ -634,13 +670,15 @@ mod:RegisterUnitEvents("unit.boneclaw",{
     [core.E.UNIT_DESTROYED] = mod.OnBoneclawDestroyed,
   }
 )
-
 mod:RegisterUnitEvents(core.E.ALL_UNITS,{
     [core.E.UNIT_CREATED] = mod.OnAnyUnitCreated,
     [core.E.UNIT_DESTROYED] = mod.OnAnyUnitDestroyed,
     [DEBUFFS.SOULFIRE] = {
       [core.E.DEBUFF_ADD] = mod.OnSoulfireAdd,
       [core.E.DEBUFF_REMOVE] = mod.OnSoulfireRemove,
+    },
+    [DEBUFFS.SOUL_EATER] = {
+      [core.E.DEBUFF_ADD] = mod.OnSoulEaterCaught,
     },
     [DEBUFFS.EXPULSION_OF_SOULS] = {
       [core.E.DEBUFF_ADD] = mod.OnExpulsionAdd,
