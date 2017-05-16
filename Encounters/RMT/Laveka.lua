@@ -513,8 +513,7 @@ function mod:DrawSoulEaterOrbit(index)
     orbitColor = "xkcdRed"
   end
   core:AddPolygon("ORBIT_"..index, ROOM_CENTER, radius.z, nil, 2, orbitColor, 40)
-  mod:SetWorldMarker("ORBIT_"..index.."up", index, ROOM_CENTER + radius)
-  mod:SetWorldMarker("ORBIT_"..index.."down", index, ROOM_CENTER - radius)
+  mod:SetWorldMarker("ORBIT_"..index, index, ROOM_CENTER + radius)
 end
 
 function mod:RemoveSoulEaterOrbits()
@@ -525,8 +524,7 @@ end
 
 function mod:RemoveSoulEaterOrbit(index)
   core:RemovePolygon("ORBIT_"..index)
-  mod:DropWorldMarker("ORBIT_"..index.."up")
-  mod:DropWorldMarker("ORBIT_"..index.."down")
+  mod:DropWorldMarker("ORBIT_"..index)
 end
 
 function mod:OnMidphaseStart()
