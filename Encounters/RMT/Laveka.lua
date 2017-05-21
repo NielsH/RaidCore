@@ -72,14 +72,14 @@ mod:RegisterFrenchLocale({
     ["unit.phantom"] = "Fantôme",
     -- Cast names.
     ["cast.laveka.cacophony"] = "Cacophonie des âmes",
-    -- ["cast.laveka.rend"] = "TODO",
+    ["cast.laveka.rend"] = "Déchire le voile spirituel",
     ["cast.titan.manifest"] = "Manifeste",
     ["cast.adds.explosion"] = "Courroux spirituel",
     -- Datachrons.
     ["chron.laveka.mask"] = "Vous sentez votre esprit attiré par le masque de Mog-Mog.",
     ["chron.laveka.cacophony"] = "Laveka libère une Cacophonie d'âmes qui dévaste le royaume des vivants.",
     ["chron.realm.living"] = "Votre esprit est revenu au royaume des mortels.",
-    -- ["chron.laveka.lastphase"] = "TODO",
+    ["chron.laveka.lastphase"] = "Laveka utilise le masque de Mog-Mog pour déchirer le voile qui sépare ce monde de l'autre.",
   }
 )
 mod:RegisterGermanLocale({
