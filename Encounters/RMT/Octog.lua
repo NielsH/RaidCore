@@ -152,6 +152,11 @@ local BUFFS = {
 }
 
 local TIMERS = {
+  SQUIRGS = {
+    UPDATE = 0.25,
+    EXPLODE = 38,
+    EXPLODE_WARNING_THRESHOLD = 10,
+  },
   HOOKSHOT = {
     FIRST = 10,
     NORMAL = 30,
@@ -186,21 +191,27 @@ local inkPools
 local drawPools
 local updatePoolTimer = ApolloTimer.Create(TIMERS.POOL.UPDATE, true, "OnUpdatePoolTimer", mod)
 updatePoolTimer:Stop()
+local squirgs
+local updateSquirgsTimer = ApolloTimer.Create(TIMERS.SQUIRGS.UPDATE, true, "OnUpdateSquirgsTimer", mod)
+updateSquirgsTimer:Stop()
 ----------------------------------------------------------------------------------------------------
 -- Encounter description.
 ----------------------------------------------------------------------------------------------------
 function mod:OnBossEnable()
   orbCount = 0
   inkPools = {}
+  squirgs = {}
   drawPools = false
   playerId = GameLib.GetPlayerUnit():GetId()
   mod:AddTimerBar("NEXT_HOOKSHOT_TIMER", "msg.octog.hookshot.next", TIMERS.HOOKSHOT.FIRST)
   mod:AddTimerBar("NEXT_FLAMETHROWER_TIMER", "msg.octog.flamethrower.next", TIMERS.FLAMETHROWER.NORMAL)
   updatePoolTimer:Start()
+  updateSquirgsTimer:Start()
 end
 
 function mod:OnBossDisable()
   updatePoolTimer:Stop()
+  updateSquirgsTimer:Stop()
 end
 
 function mod:IsPhaseClose(phase, percent)
@@ -344,12 +355,36 @@ function mod:UpdatePoolSize(inkPool, poolSizeIndex)
   end
 end
 
+function mod:OnUpdateSquirgsTimer()
+  local currentTime = GetGameTime()
+  for id, squirg in next, squirgs do
+    local elapsed = currentTime - squirg.creationTime
+    if not squirg.nearExplosion and elapsed + TIMERS.SQUIRGS.EXPLODE_WARNING_THRESHOLD > TIMERS.SQUIRGS.EXPLODE then
+      core:AddPicture("SQUIRG_WARNING_"..id, squirg.unit, "Crosshair", 30, 0, 0, nil, "Red")
+      squirg.nearExplosion = true
+    end
+  end
+end
+
 function mod:OnUpdatePoolTimer()
   local currentTime = GetGameTime()
   for id, inkPool in next, inkPools do
     local poolSizeIndex = floor((currentTime - inkPool.creationTime)/TIMERS.POOL.GROW) + 1
     mod:UpdatePoolSize(inkPool, poolSizeIndex)
   end
+end
+
+function mod:OnSquirgCreated(id, unit)
+  squirgs[id] = {
+    creationTime = GetGameTime(),
+    unit = unit,
+    id = id,
+    nearExplosion = false,
+  }
+end
+
+function mod:OnSquirgDestroyed(id, unit)
+  squirgs[id] = nil
 end
 
 function mod:OnPoolCreated(id, unit)
@@ -409,5 +444,10 @@ mod:RegisterUnitEvents({"unit.orb", "unit.octog"}, {
 mod:RegisterUnitEvents("unit.pool", {
     [core.E.UNIT_CREATED] = mod.OnPoolCreated,
     [core.E.UNIT_DESTROYED] = mod.OnPoolDestroyed,
+  }
+)
+mod:RegisterUnitEvents("unit.squirgling", {
+    [core.E.UNIT_CREATED] = mod.OnSquirgCreated,
+    [core.E.UNIT_DESTROYED] = mod.OnSquirgDestroyed,
   }
 )
