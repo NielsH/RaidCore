@@ -25,7 +25,8 @@ mod:RegisterEnglishLocale({
     -- Cast names.
     -- Messages.
     ["msg.add.soon"] = "Add soon",
-  })
+  }
+)
 ----------------------------------------------------------------------------------------------------
 -- Settings.
 ----------------------------------------------------------------------------------------------------
@@ -33,7 +34,7 @@ mod:RegisterUnitBarConfig("unit.muburu", {
     nPriority = 0,
     tMidphases = {
       {percent = 80},
-      {percent = 65},
+      {percent = 55},
       {percent = 30},
     }
   }
