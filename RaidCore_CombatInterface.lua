@@ -608,33 +608,33 @@ end
 ----------------------------------------------------------------------------------------------------
 -- Combat Interface layer.
 ----------------------------------------------------------------------------------------------------
-function RaidCore:CI_OnEnteredCombat(tUnit, bInCombat)
+function RaidCore:CI_SendOnUnitCreated(tUnit, nId, sName)
+  if not _tAllUnits[nId] then
+    _tAllUnits[nId] = true
+    ManagerCall(RaidCore.E.UNIT_CREATED, nId, tUnit, sName)
+    LogUnitSpawnLocation(nId, sName, tUnit:GetPosition())
+  end
+end
+
+function RaidCore:IsPlayerPet(tUnit)
   local tOwner = tUnit.GetUnitOwner and tUnit:GetUnitOwner()
-  local bIsPetPlayer = tOwner and self:IsUnitInGroup(tOwner)
-  if not bIsPetPlayer then
+  return tOwner and self:IsUnitInGroup(tOwner)
+end
+
+function RaidCore:CI_OnEnteredCombat(tUnit, bInCombat)
+  if not self:IsPlayerPet(tUnit) then
     local nId = tUnit:GetId()
     local sName = self:ReplaceNoBreakSpace(tUnit:GetName())
-    if not self:IsUnitInGroup(tUnit) then
-      if not _tAllUnits[nId] then
-        ManagerCall(RaidCore.E.UNIT_CREATED, nId, tUnit, sName)
-      end
-      _tAllUnits[nId] = true
-    end
+    self:CI_SendOnUnitCreated(tUnit, nId, sName)
     ManagerCall(RaidCore.E.ENTERED_COMBAT, nId, tUnit, sName, bInCombat)
   end
 end
 
 function RaidCore:CI_OnUnitCreated(tUnit)
-  local nId = tUnit:GetId()
-  if not self:IsUnitInGroup(tUnit) then
+  if not self:IsPlayerPet(tUnit) then
+    local nId = tUnit:GetId()
     local sName = self:ReplaceNoBreakSpace(tUnit:GetName())
-    local tOwner = tUnit.GetUnitOwner and tUnit:GetUnitOwner()
-    local bIsPetPlayer = tOwner and self:IsUnitInGroup(tOwner)
-    if not bIsPetPlayer and not _tAllUnits[nId] then
-      _tAllUnits[nId] = true
-      ManagerCall(RaidCore.E.UNIT_CREATED, nId, tUnit, sName)
-      LogUnitSpawnLocation(nId, sName, tUnit:GetPosition())
-    end
+    self:CI_SendOnUnitCreated(tUnit, nId, sName)
   end
 end
 
