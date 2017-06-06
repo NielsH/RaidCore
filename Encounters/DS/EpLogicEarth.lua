@@ -91,8 +91,14 @@ mod:RegisterDefaultTimerBarConfigs({
 ----------------------------------------------------------------------------------------------------
 -- Constants.
 ----------------------------------------------------------------------------------------------------
-local BUFF_MNEMESIS_INFORMATIC_CLOUD = 52571
-local DEBUFF_SNAKE = 74570
+local DEBUFFS = {
+  SNAKE = 74570,
+}
+
+local BUFFS = {
+  INFORMATIC_CLOUD = 52571,
+}
+
 local COLOR_SNAKE_FOCUS = "xkcdBarneyPurple"
 local COLOR_SNAKE_UNFOCUS_OBSIDIAN = "xkcdBarbiePink"
 local COLOR_SNAKE_UNFOCUS_PLAYER = "xkcdBabyPink"
@@ -106,6 +112,7 @@ local GetPlayerUnit = GameLib.GetPlayerUnit
 local nLastSnakePieceId
 local nMemberIdTargetedBySnake
 local tObsidianList
+local player
 
 local function DrawSnakePieceLines()
   if mod:GetSetting("LineSnakeVsPlayer") then
@@ -148,6 +155,11 @@ function mod:OnBossEnable()
   nLastSnakePieceId = nil
   tObsidianList = {}
   nMemberIdTargetedBySnake = nil
+  player = {}
+  player.unit = GameLib.GetPlayerUnit()
+  player.name = player.unit:GetName()
+  player.id = player.unit:GetId()
+
   mod:AddTimerBar("DEFRAG", "Next defragment", 10)
   mod:AddTimerBar("STARS", "Next phase: Stars", 60)
 end
@@ -189,31 +201,37 @@ function mod:OnCastStart(nId, sCastName, nCastEndTime, sName)
         core:AddPolygon("DEFRAG_SQUARE", GetPlayerUnit():GetId(), 13, 0, 4, "xkcdBloodOrange", 4)
         self:ScheduleTimer(function()
             core:RemovePolygon("DEFRAG_SQUARE")
-            end, 10)
-        end
+          end,
+          10)
       end
     end
   end
+end
 
-  function mod:OnDatachron(sMessage)
-    if sMessage:find(self.L["The ground shudders beneath Megalith"]) then
-      mod:AddMsg("QUAKE", "JUMP !", 3, mod:GetSetting("SoundQuakeJump") and "Beware")
-    elseif sMessage:find(self.L["Logic creates powerful data caches"]) then
-      mod:AddMsg("STARS", "STARS !", 5, mod:GetSetting("SoundStars") and "Alert")
-      mod:AddTimerBar("STARS", "Next phase: Stars", 60)
-    end
+function mod:OnDatachron(sMessage)
+  if sMessage:find(self.L["The ground shudders beneath Megalith"]) then
+    mod:AddMsg("QUAKE", "JUMP !", 3, mod:GetSetting("SoundQuakeJump") and "Beware")
+  elseif sMessage:find(self.L["Logic creates powerful data caches"]) then
+    mod:AddMsg("STARS", "STARS !", 5, mod:GetSetting("SoundStars") and "Alert")
+    mod:AddTimerBar("STARS", "Next phase: Stars", 60)
   end
+end
 
-  function mod:OnDebuffAdd(nId, nSpellId, nStack, fTimeRemaining)
-    local tUnit = GetUnitById(nId)
-    local sUnitName = tUnit:GetName()
+function mod:OnSnakeAdd(id, spellId, stack, timeRemaining, name)
+  local sSnakeOnX = self.L["SNAKE on %s"]:format(name)
+  local sSound = id == player.id and mod:GetSetting("SoundSnake") and "RunAway"
+  mod:AddMsg("SNAKE", sSnakeOnX, 5, sSound, "Blue")
+  mod:AddTimerBar("SNAKE", sSnakeOnX, 20)
+  nMemberIdTargetedBySnake = id
+  DrawSnakePieceLines()
+end
 
-    if nSpellId == DEBUFF_SNAKE then
-      local sSnakeOnX = self.L["SNAKE on %s"]:format(sUnitName)
-      local sSound = tUnit == GetPlayerUnit() and mod:GetSetting("SoundSnake") and "RunAway"
-      mod:AddMsg("SNAKE", sSnakeOnX, 5, sSound, "Blue")
-      mod:AddTimerBar("SNAKE", sSnakeOnX, 20)
-      nMemberIdTargetedBySnake = nId
-      DrawSnakePieceLines()
-    end
-  end
+----------------------------------------------------------------------------------------------------
+-- Bind event handlers.
+----------------------------------------------------------------------------------------------------
+mod:RegisterUnitEvents(core.E.ALL_UNITS, {
+    [DEBUFFS.SNAKE] = {
+      [core.E.DEBUFF_ADD] = mod.OnSnakeAdd,
+    },
+  }
+)

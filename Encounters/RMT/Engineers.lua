@@ -299,6 +299,7 @@ end
 
 function mod:OnAnyUnitDestroyed(id, unit, name)
   core:DropMark(id)
+  core:RemovePolygon("ION_CLASH_"..id)
 end
 
 function mod:OnElectroshockAdd(id, spellId, stack, timeRemaining, targetName)
@@ -326,12 +327,12 @@ end
 
 function mod:OnIonClashAdd(id, spellId, stack, timeRemaining, name)
   if mod:GetSetting("VisualIonClashCircle") then
-    core:AddPolygon("ION_CLASH", id, 9, 0, 10, "xkcdBlue", 64)
+    core:AddPolygon("ION_CLASH_"..id, id, 9, 0, 10, "xkcdBlue", 64)
   end
 end
 
 function mod:OnIonClashRemove(id, spellId, name)
-  core:RemovePolygon("ION_CLASH")
+  core:RemovePolygon("ION_CLASH_"..id)
 end
 
 function mod:OnAtomicAttactionAdd(id, spellId, stack, timeRemaining, targetName)
@@ -347,7 +348,7 @@ function mod:IsPlayerOnPlatform(coreId)
   return player.location == coreId
 end
 
-function mod:OnEngineerCreated(id, unit, name)
+function mod:OnAnyEngineerCreated(id, unit, name)
   local engineerId = ENGINEER_NAMES[name]
   engineerUnits[engineerId] = {
     unit = unit,
@@ -372,8 +373,12 @@ function mod:OnCoreCreated(id, unit, name)
   end
 end
 
-function mod:OnEngineerDestroyed(id, unit, name)
+function mod:OnAnyEngineerDestroyed(id, unit, name)
   engineerUnits[ENGINEER_NAMES[name]] = nil
+end
+
+function mod:OnEngineerDestroyed(id, unit, name)
+  core:RemoveSimpleLine("ELECTROSHOCK")
 end
 
 function mod:OnCoreHealthChanged(id, percent, name)
@@ -495,8 +500,8 @@ mod:RegisterUnitEvents({
   }
 )
 mod:RegisterUnitEvents({"unit.engineer", "unit.warrior"}, {
-    [core.E.UNIT_CREATED] = mod.OnEngineerCreated,
-    [core.E.UNIT_DESTROYED] = mod.OnEngineerDestroyed,
+    [core.E.UNIT_CREATED] = mod.OnAnyEngineerCreated,
+    [core.E.UNIT_DESTROYED] = mod.OnAnyEngineerDestroyed,
   }
 )
 mod:RegisterUnitEvents("unit.warrior",{
@@ -510,6 +515,7 @@ mod:RegisterUnitEvents("unit.warrior",{
   }
 )
 mod:RegisterUnitEvents("unit.engineer",{
+    [core.E.UNIT_DESTROYED] = mod.OnEngineerDestroyed,
     ["cast.engineer.electroshock"] = {
       [core.E.CAST_START] = mod.OnEngineerElectroshockStart,
       [core.E.CAST_END] = mod.OnEngineerElectroshockEnd,

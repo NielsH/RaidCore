@@ -17,59 +17,59 @@ if not mod then return end
 ----------------------------------------------------------------------------------------------------
 -- Registering combat.
 ----------------------------------------------------------------------------------------------------
-mod:RegisterTrigMob(core.E.TRIGGER_ANY, { "Experiment X-89" })
+mod:RegisterTrigMob(core.E.TRIGGER_ANY, { "unit.x89" })
 mod:RegisterEnglishLocale({
     -- Unit names.
-    ["Experiment X-89"] = "Experiment X-89",
+    ["unit.x89"] = "Experiment X-89",
     -- Datachron messages.
-    ---- This entry is used with string.match, so the dash in X-89 needs to be escaped.
-    ["Experiment X-89 has placed a bomb"] = "Experiment X%-89 has placed a bomb on (.*)!",
+    ["chron.x89.bomb"] = "Experiment X%-89 has placed a bomb on (.*)!",
     -- Cast.
-    ["Shattering Shockwave"] = "Shattering Shockwave",
-    ["Repugnant Spew"] = "Repugnant Spew",
-    ["Resounding Shout"] = "Resounding Shout",
+    ["cast.x89.shockwave"] = "Shattering Shockwave",
+    ["cast.x89.spew"] = "Repugnant Spew",
+    ["cast.x89.knockback"] = "Resounding Shout",
     -- Timer bars.
-    ["Big bomb on %s"] = "Big bomb on %s",
-    ["Little bomb on %s"] = "Little bomb on %s",
+    ["msg.bomb.big"] = "Big bomb on %s",
+    ["msg.bomb.little"] = "Little bomb on %s",
     -- Message bars.
-    ["KNOCKBACK"] = "KNOCKBACK",
-    ["SPEW"] = "SPEW",
-    ["SHOCKWAVE"] = "SHOCKWAVE",
-  })
+    ["msg.knockback"] = "KNOCKBACK",
+    ["msg.spew"] = "SPEW",
+    ["msg.shockwave"] = "SHOCKWAVE",
+  }
+)
 mod:RegisterFrenchLocale({
     -- Unit names.
-    ["Experiment X-89"] = "Expérience X-89",
+    ["unit.x89"] = "Expérience X-89",
     -- Datachron messages.
-    ---- This entry is used with string.match, so the dash in X-89 needs to be escaped.
-    ["Experiment X-89 has placed a bomb"] = "L'expérience X%-89 a posé une bombe sur (.*) !",
+    ["chron.x89.bomb"] = "L'expérience X%-89 a posé une bombe sur (.*) !",
     -- Cast.
-    ["Shattering Shockwave"] = "Onde de choc dévastatrice",
-    ["Repugnant Spew"] = "Crachat répugnant",
-    ["Resounding Shout"] = "Hurlement retentissant",
+    ["cast.x89.shockwave"] = "Onde de choc dévastatrice",
+    ["cast.x89.spew"] = "Crachat répugnant",
+    ["cast.x89.knockback"] = "Hurlement retentissant",
     -- Timer bars.
-    ["Big bomb on %s"] = "Grosse bombe sur %s",
-    ["Little bomb on %s"] = "Petite bombe sur %s",
+    ["msg.bomb.big"] = "Grosse bombe sur %s",
+    ["msg.bomb.little"] = "Petite bombe sur %s",
     -- Message bars.
-    ["KNOCKBACK"] = "KNOCKBACK",
-    ["SPEW"] = "CRACHAT",
-    ["SHOCKWAVE"] = "ONDE DE CHOC",
-  })
+    ["msg.knockback"] = "KNOCKBACK",
+    ["msg.spew"] = "CRACHAT",
+    ["msg.shockwave"] = "ONDE DE CHOC",
+  }
+)
 mod:RegisterGermanLocale({
     -- Unit names.
-    ["Experiment X-89"] = "Experiment X-89",
+    ["unit.x89"] = "Experiment X-89",
     -- Datachron messages.
-    ---- This entry is used with string.match, so the dash in X-89 needs to be escaped.
-    ["Experiment X-89 has placed a bomb"] = "Experiment X%-89 hat eine Bombe auf (.*)!",
+    ["chron.x89.bomb"] = "Experiment X%-89 hat eine Bombe auf (.*)!",
     -- Cast.
-    ["Shattering Shockwave"] = "Zerschmetternde Schockwelle",
-    ["Repugnant Spew"] = "Widerliches Erbrochenes",
-    ["Resounding Shout"] = "Widerhallender Schrei",
+    ["cast.x89.shockwave"] = "Zerschmetternde Schockwelle",
+    ["cast.x89.spew"] = "Widerliches Erbrochenes",
+    ["cast.x89.knockback"] = "Widerhallender Schrei",
     -- Timer bars.
     -- Message bars.
-    ["KNOCKBACK"] = "RÜCKSTOß",
-    ["SPEW"] = "ERBROCHENES",
-    ["SHOCKWAVE"] = "SCHOCKWELLE",
-  })
+    ["msg.knockback"] = "RÜCKSTOß",
+    ["msg.spew"] = "ERBROCHENES",
+    ["msg.shockwave"] = "SCHOCKWELLE",
+  }
+)
 -- Default settings.
 mod:RegisterDefaultSetting("LineExperimentX89")
 mod:RegisterDefaultSetting("LineBigBomb")
@@ -82,98 +82,122 @@ mod:RegisterDefaultSetting("SoundBigBomb")
 mod:RegisterDefaultTimerBarConfigs({
     ["LittleBomb"] = { sColor = "xkcdBottleGreen" },
     ["BigBomb"] = { sColor = "xkcdAubergine" },
-  })
+  }
+)
 
 ----------------------------------------------------------------------------------------------------
 -- Constants.
 ----------------------------------------------------------------------------------------------------
-local DEBUFFID_LITTLE_BOMB = 47316
-local DEBUFFID_BIG_BOMB = 47285
-
+local DEBUFFS = {
+  LITTLE_BOMB = 47316,
+  BIG_BOMB = 47285,
+}
 ----------------------------------------------------------------------------------------------------
 -- Locals.
 ----------------------------------------------------------------------------------------------------
-local GetPlayerUnit = GameLib.GetPlayerUnit
-local GetUnitById = GameLib.GetUnitById
-local GetPlayerUnitByName = GameLib.GetPlayerUnitByName
 local nExperimentX89Id
-
+local player
 ----------------------------------------------------------------------------------------------------
 -- Encounter description.
 ----------------------------------------------------------------------------------------------------
 function mod:OnBossEnable()
+  player = {}
+  player.unit = GameLib.GetPlayerUnit()
+  player.name = player.unit:GetName()
+  player.id = player.unit:GetId()
   nExperimentX89Id = nil
 end
 
-function mod:OnUnitCreated(nId, tUnit, sName)
-  if sName == self.L["Experiment X-89"] then
-    nExperimentX89Id = nId
-    core:AddUnit(tUnit)
-    core:WatchUnit(tUnit)
-    if mod:GetSetting("LineExperimentX89") then
-      core:AddSimpleLine("Cleave", nExperimentX89Id, 0, 5, 0, 8, "green")
-    end
+function mod:OnLittleBombAdd(id, spellId, stack, timeRemaining, name, unitCaster)
+  local isPlayer = id == player.id
+  local sText = self.L["msg.bomb.little"]:format(name)
+
+  if mod:GetSetting("LineLittleBomb") then
+    local o = core:AddLineBetweenUnits(id, nExperimentX89Id, id, nil, "blue")
+    o:SetMaxLengthVisible(40)
+  end
+
+  if mod:GetSetting("PictureLittleBomb") then
+    core:AddPicture(id, id, "Crosshair", 20, 0, 0, nil, "blue")
+  end
+
+  mod:AddMsg("LittleBomb", sText:upper(), 3, nil, "blue")
+  local bCountDownLittleBomb = mod:GetSetting("SoundLittleBomb") and isPlayer
+  mod:AddTimerBar("LittleBomb", sText, timeRemaining - 1, bCountDownLittleBomb)
+
+  if isPlayer and mod:GetSetting("SoundLittleBomb")then
+    core:PlaySound("RunAway")
   end
 end
 
-function mod:OnCastStart(nId, sCastName, nCastEndTime, sName)
-  if sName == self.L["Experiment X-89"] then
-    if sCastName == self.L["Resounding Shout"] then
-      mod:AddMsg("KNOCKBACK", "KNOCKBACK", 3, "Alert")
-    elseif sCastName == self.L["Repugnant Spew"] then
-      mod:AddMsg("SPEW", "SPEW", 3, "Info")
-    end
+function mod:OnBigBombAdd(id, spellId, stack, timeRemaining, name, unitCaster)
+  local isPlayer = id == player.id
+  local sText = self.L["msg.bomb.big"]:format(name)
+
+  if mod:GetSetting("LineBigBomb") then
+    local o = core:AddLineBetweenUnits(id, nExperimentX89Id, id, nil, "red")
+    o:SetMaxLengthVisible(40)
+  end
+
+  if mod:GetSetting("PictureBigBomb") then
+    core:AddPicture(id, id, "Crosshair", 40, 0, 0, nil, "red")
+  end
+
+  mod:AddMsg("BigBomb", sText:upper(), 3, nil, "red")
+  local bCountDownBigBomb = mod:GetSetting("SoundBigBomb") and isPlayer
+  mod:AddTimerBar("BigBomb", sText, timeRemaining - 2, bCountDownBigBomb)
+
+  if isPlayer and mod:GetSetting("SoundBigBomb") then
+    core:PlaySound("RunAway")
   end
 end
 
-function mod:OnDebuffAdd(nId, nSpellId, nStack, fTimeRemaining)
-  local bIsItself = nId == GetPlayerUnit():GetId()
+function mod:RemoveDraws(id)
+  core:RemovePicture(id)
+  core:RemoveLineBetweenUnits(id)
+end
 
-  if DEBUFFID_LITTLE_BOMB == nSpellId then
-    local tUnit = GetUnitById(nId)
-    local sText = self.L["Little bomb on %s"]:format(tUnit:GetName())
-    if mod:GetSetting("LineLittleBomb") then
-      local o = core:AddLineBetweenUnits("LittleBomb", nExperimentX89Id, nId, nil, "blue")
-      o:SetMaxLengthVisible(40)
-    end
-    if mod:GetSetting("PictureLittleBomb") then
-      core:AddPicture("LittleBomb", nId, "Crosshair", 20, 0, 0, nil, "blue")
-    end
-    mod:AddMsg("LittleBomb", sText:upper(), 3, nil, "blue")
-    local bCountDownLittleBomb = mod:GetSetting("SoundLittleBomb") and bIsItself
-    mod:AddTimerBar("LittleBomb", sText, fTimeRemaining - 1, bCountDownLittleBomb)
-    if bIsItself then
-      if mod:GetSetting("SoundLittleBomb") then
-        core:PlaySound("RunAway")
-      end
-    end
-  elseif DEBUFFID_BIG_BOMB == nSpellId then
-    local tUnit = GetUnitById(nId)
-    local sText = self.L["Big bomb on %s"]:format(tUnit:GetName())
-    if mod:GetSetting("LineBigBomb") then
-      local o = core:AddLineBetweenUnits("BigBomb", nExperimentX89Id, nId, nil, "red")
-      o:SetMaxLengthVisible(40)
-    end
-    if mod:GetSetting("PictureBigBomb") then
-      core:AddPicture("BigBomb", nId, "Crosshair", 40, 0, 0, nil, "red")
-    end
-    mod:AddMsg("BigBomb", sText:upper(), 3, nil, "red")
-    local bCountDownBigBomb = mod:GetSetting("SoundBigBomb") and bIsItself
-    mod:AddTimerBar("BigBomb", sText, fTimeRemaining - 2, bCountDownBigBomb)
-    if bIsItself then
-      if mod:GetSetting("SoundBigBomb") then
-        core:PlaySound("RunAway")
-      end
-    end
+function mod:OnX89Created(id, unit, name)
+  nExperimentX89Id = id
+  mod:AddUnit(unit)
+  core:WatchUnit(unit, core.E.TRACK_CASTS)
+  if mod:GetSetting("LineExperimentX89") then
+    core:AddSimpleLine("Cleave", id, 0, 5, 0, 8, "green")
   end
 end
 
-function mod:OnDebuffRemove(nId, nSpellId)
-  if DEBUFFID_LITTLE_BOMB == nSpellId then
-    core:RemovePicture("LittleBomb")
-    core:RemoveLineBetweenUnits("LittleBomb")
-  elseif DEBUFFID_BIG_BOMB == nSpellId then
-    core:RemovePicture("BigBomb")
-    core:RemoveLineBetweenUnits("BigBomb")
-  end
+function mod:OnX89Destroyed(id, unit, name)
+  core:RemoveSimpleLine("Cleave")
 end
+
+function mod:OnKnockbackStart()
+  mod:AddMsg("KNOCKBACK", "msg.knockback", 3, "Alert")
+end
+
+function mod:OnSpewStart()
+  mod:AddMsg("SPEW", "msg.spew", 3, "Info")
+end
+----------------------------------------------------------------------------------------------------
+-- Bind event handlers.
+----------------------------------------------------------------------------------------------------
+mod:RegisterUnitEvents(core.E.ALL_UNITS, {
+    [core.E.UNIT_DESTROYED] = mod.RemoveDraws,
+    [DEBUFFS.LITTLE_BOMB] = {
+      [core.E.DEBUFF_ADD] = mod.OnLittleBombAdd,
+      [core.E.DEBUFF_REMOVE] = mod.RemoveDraws,
+    },
+    [DEBUFFS.BIG_BOMB] = {
+      [core.E.DEBUFF_ADD] = mod.OnBigBombAdd,
+      [core.E.DEBUFF_REMOVE] = mod.RemoveDraws,
+    },
+  }
+)
+mod:RegisterUnitEvents("unit.x89", {
+    [core.E.UNIT_CREATED] = mod.OnX89Created,
+    [core.E.UNIT_DESTROYED] = mod.OnX89Destroyed,
+    [core.E.CAST_START] = {
+      ["cast.x89.knockback"] = mod.OnKnockbackStart,
+      ["cast.x89.spew"] = mod.OnSpewStart,
+    },
+  }
+)

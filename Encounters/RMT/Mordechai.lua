@@ -278,6 +278,7 @@ end
 
 function mod:OnAnyUnitDestroyed(id, unit, name)
   core:DropMark(id)
+  core:RemovePicture("SHOCKING_ATTRACTION_TARGET_"..id)
 end
 
 function mod:OnKineticLinkAdded(id, spellId, stack, timeRemaining, name, unitCaster)
