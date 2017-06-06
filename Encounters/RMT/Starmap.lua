@@ -593,7 +593,7 @@ end
 
 function mod:OnMidphaseStart()
   solarFlareCount = 0
-  mod:UpdateAlphaCassusCleaveLine()
+  core:RemoveSimpleLine(alphaCassus.id)
 end
 
 ----------------------------------------------------------------------------------------------------
@@ -611,6 +611,7 @@ mod:RegisterUnitEvents("unit.alpha",{
     },
     ["cast.alpha.catastrophic"] = {
       [core.E.CAST_START] = mod.OnMidphaseStart,
+      [core.E.CAST_END] = mod.UpdateAlphaCassusCleaveLine,
     }
   }
 )
