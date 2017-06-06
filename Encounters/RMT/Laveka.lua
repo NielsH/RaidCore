@@ -281,12 +281,6 @@ function mod:SetCardinalMarkers()
   end
 end
 
-function mod:OnAnyUnitCreated(id, unit, name)
-  if name == player.name and unit:IsHostile() then
-    core:AddLineBetweenUnits("Bla", player.unit, unit, 7, "xkcdRed")
-  end
-end
-
 function mod:OnAnyUnitDestroyed(id, unit, name)
   local forceClear = false
   if name == player.name then
@@ -669,7 +663,6 @@ mod:RegisterUnitEvents("unit.boneclaw",{
   }
 )
 mod:RegisterUnitEvents(core.E.ALL_UNITS,{
-    [core.E.UNIT_CREATED] = mod.OnAnyUnitCreated,
     [core.E.UNIT_DESTROYED] = mod.OnAnyUnitDestroyed,
     [DEBUFFS.SOULFIRE] = {
       [core.E.DEBUFF_ADD] = mod.OnSoulfireAdd,
