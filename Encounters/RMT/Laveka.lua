@@ -525,7 +525,9 @@ function mod:OnMidphaseStart()
   isMidphase = true
   mod:RemoveTimerBar("ADDS_TIMER")
   mod:StopSoulEaterTimer()
-  mod:RemoveSoulEaterOrbits()
+  if next(soulEaters) == nil then
+    mod:RemoveSoulEaterOrbits()
+  end
 end
 
 function mod:OnMidphaseEnd()
