@@ -82,9 +82,10 @@ mod:RegisterFrenchLocale({
     ["buff.alpha.wind"] = "Vents solaires",
     ["buff.alpha.irradiated"] = "Armure irradiée",
     -- Datachron.
-    ["chron.world_ender.aldinari"] = "A World Ender is heading to the d'Aldinari orbit.",
-    ["chron.world_ender.vulpes_nix"] = "A World Ender is heading to the de Vulpes Nix orbit.",
-    ["chron.world_ender.cassus"] = "A World Ender is heading to the de Cassus orbit.",
+    ["chron.world_ender.aldinari"] = "Un Finisseur de monde se dirige vers l'orbite de Aldinari.",
+    ["chron.world_ender.vulpes_nix"] = "Un Finisseur de monde se dirige vers l'orbite de Vulpes Nix.",
+    ["chron.world_ender.cassus"] = "Un Finisseur de monde se dirige vers l'orbite de Cassus.",
+    ["chron.critical_mass"] = "([^%s]+%s[^%s]+) a atteint une masse critique !",
   }
 )
 mod:RegisterGermanLocale({
@@ -99,9 +100,9 @@ mod:RegisterGermanLocale({
     ["buff.alpha.wind"] = "Solarwinde",
     ["buff.alpha.irradiated"] = "Verstrahlte Rüstung",
     -- Datachron.
-    -- Bugged ["chron.world_ender.aldinari"] = "A World Ender is heading to the (rvl_target.name) orbit.", --
-    -- Bugged ["chron.world_ender.vulpes_nix"] = "A World Ender is heading to the (rvl_target.name) orbit.",
-    -- Bugged ["chron.world_ender.cassus"] = "A World Ender is heading to the (rvl_target.name) orbit.",
+    ["chron.world_ender.aldinari"] = "Ein Weltenender ist auf dem Weg in den Orbit von Aldinari.",
+    ["chron.world_ender.vulpes_nix"] = "Ein Weltenender ist auf dem Weg in den Orbit von Vulpes Nix.",
+    ["chron.world_ender.cassus"] = "Ein Weltenender ist auf dem Weg in den Orbit von Cassus.",
     ["chron.critical_mass"] = "([^%s]+%s[^%s]+) hat kritische Masse erreicht!",
   }
 )
