@@ -559,7 +559,9 @@ function RaidCore:CombatInterface_ExtraActivate(sEvent, bNewState)
 end
 
 function RaidCore:Log(type, ...)
-  Log:Add(type, ...)
+  if self.db.profile.bLogsEnabled or type == RaidCore.E.ERROR then
+    Log:Add(type, ...)
+  end
 end
 
 -- Track buff and cast of this unit.
