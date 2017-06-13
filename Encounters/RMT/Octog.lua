@@ -360,7 +360,8 @@ function mod:OnUpdateSquirgsTimer()
   for id, squirg in next, squirgs do
     local elapsed = currentTime - squirg.creationTime
     if not squirg.nearExplosion and elapsed + TIMERS.SQUIRGS.EXPLODE_WARNING_THRESHOLD > TIMERS.SQUIRGS.EXPLODE then
-      core:AddPicture("SQUIRG_WARNING_"..id, squirg.unit, "Crosshair", 30, 0, 0, nil, "Red")
+      core:AddPicture("SQUIRG_WARNING_"..id, squirg.unit, "Crosshair", 30, 0, 0, nil, "xkcdRed")
+      core:AddLineBetweenUnits("SQUIRG_WARNING_"..id, squirg.unit, self.player.unit, 10, "xkcdRed")
       squirg.nearExplosion = true
     end
   end
