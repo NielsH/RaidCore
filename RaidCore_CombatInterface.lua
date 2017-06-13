@@ -239,7 +239,7 @@ end
 
 local function TrackThisUnit(tUnit, nTrackingType)
   local nId = tUnit:GetId()
-  if RaidCore.db.profile.bDisableSelectiveTracking then
+  if RaidCore.db.profile.bDebugLogsEnabled then
     nTrackingType = RaidCore.E.TRACK_ALL
   else
     nTrackingType = nTrackingType or RaidCore.E.TRACK_ALL
@@ -619,6 +619,9 @@ function RaidCore:CI_SendOnUnitCreated(tUnit, nId, sName)
     _tAllUnits[nId] = true
     ManagerCall(RaidCore.E.UNIT_CREATED, nId, tUnit, sName)
     LogUnitSpawnLocation(nId, sName, tUnit:GetPosition())
+    if self.db.profile.bDebugLogsEnabled then
+      TrackThisUnit(tUnit, self.E.TRACK_ALL)
+    end
   end
 end
 
