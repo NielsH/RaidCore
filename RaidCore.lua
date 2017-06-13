@@ -445,10 +445,10 @@ function RaidCore:OnInitialize()
       bLUAErrorMessage = false,
       bLogSpawnLocations = false,
       bLogsEnabled = true,
+      bDebugLogsEnabled = false,
       bReadyCheckOnBreakTimeout = true,
       sReadyCheckMessage = self.L["Raid Resume"],
       bEnableTestEncounters = false,
-      bDisableSelectiveTracking = false,
     }
   }
 
