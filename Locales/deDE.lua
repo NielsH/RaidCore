@@ -14,7 +14,7 @@ L["Stop test scenario"] = "Testszenario stoppen"
 L["Move Bars"] = "Balken bewegen"
 L["Lock Bars"] = "Balken sperren"
 L["Reset Bars"] = "Balken resetten"
-L["csi.summon"] = "Zu deinem Gruppenmitglied teleportieren?"
+L["message.summon.csi"] = "Zu deinem Gruppenmitglied teleportieren?"
 L["message.summon.request"] = "%s versucht dich herbeizurufen. Versuche jetzt anzunehmen."
 
 L["config"] = "konfig"
