@@ -46,7 +46,7 @@ mod:RegisterEnglishLocale({
     ["chron.transmission"] = "ENGAGING TECHNO-PHAGE TRASMISSION",
     ["chron.corrupted"] = "A Prime Purifier has been corrupted!",
     ["chron.decontamination"] = "INITIATING DECONTAMINATION SEQUENCE",
-    -- Cast
+    -- Casts.
     ["cast.incinerator.disintegrate"] = "Disintegrate",
     ["cast.augmentor.digitize"] = "Digitize",
     ["cast.augmentor.injection"] = "Strain Injection",
@@ -60,11 +60,18 @@ mod:RegisterFrenchLocale({
     -- Unit names.
     ["unit.augmentor.inactive"] = "Opérateur de la Primo Évolution",
     ["unit.augmentor.active"] = "Distributeur de Primo Phage",
+    ["unit.add"] = "Exploseur sternum",
     ["unit.incinerator"] = "Incinérateur organique",
     -- Datachron messages.
     ["chron.irradiated"] = "([^%s]+%s[^%s]+) est irradiée.",
     ["chron.transmission"] = "ENCLENCHEMENT DE LA TRANSMISSION DU TECHNOPHAGE",
+    ["chron.corrupted"] = "Un Primo purificateur a été corrompu !",
+    --["chron.decontamination"] = "TODO",
+    -- Casts.
     ["cast.incinerator.disintegrate"] = "Désintégration",
+    ["cast.augmentor.digitize"] = "Numérisation",
+    ["cast.augmentor.injection"] = "Injection de la Souillure",
+    ["cast.augmentor.spike"] = "Pointe de corruption",
     -- Bars messages.
     ["msg.irradiate"] = "~Prochaine irradiation",
     ["msg.corruption.warning"] = "%u STACKS AVANT CORRUPTION",
