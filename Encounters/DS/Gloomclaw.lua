@@ -17,7 +17,7 @@ if not mod then return end
 ----------------------------------------------------------------------------------------------------
 -- Registering combat.
 ----------------------------------------------------------------------------------------------------
-mod:RegisterTrigMob(core.E.TRIGGER_ANY, { "unit.gloomclaw" })
+mod:RegisterTrigMob(core.E.TRIGGER_ANY, { "unit.gloomclaw", "unit.essence" })
 mod:RegisterEnglishLocale({
     -- Unit names.
     ["unit.gloomclaw"] = "Gloomclaw",
@@ -26,7 +26,7 @@ mod:RegisterEnglishLocale({
     ["Strain Parasite"] = "Strain Parasite",
     ["Gloomclaw Skurge"] = "Gloomclaw Skurge",
     ["Corrupted Fraz"] = "Corrupted Fraz",
-    ["Essence of Logic"] = "Essence of Logic",
+    ["unit.essence"] = "Essence of Logic",
     -- Datachron messages.
     ["Gloomclaw is reduced to a weakened state"] = "Gloomclaw is reduced to a weakened state!",
     ["Gloomclaw is vulnerable"] = "Gloomclaw is vulnerable!",
@@ -58,7 +58,7 @@ mod:RegisterFrenchLocale({
     ["Strain Parasite"] = "Parasite de la Souillure",
     ["Gloomclaw Skurge"] = "Skurge serrenox",
     ["Corrupted Fraz"] = "Friz corrompu",
-    ["Essence of Logic"] = "Essence de logique",
+    ["unit.essence"] = "Essence de logique",
     -- Datachron messages.
     ["Gloomclaw is reduced to a weakened state"] = "Serrenox a été affaibli !",
     ["Gloomclaw is vulnerable"] = "Serrenox est vulnérable !",
@@ -89,7 +89,7 @@ mod:RegisterGermanLocale({
     ["Strain Parasite"] = "Transmutierten-Parasit",
     ["Gloomclaw Skurge"] = "Düsterklauen-Geißel",
     ["Corrupted Fraz"] = "Korrumpierter Fraz",
-    ["Essence of Logic"] = "Logikessenz",
+    ["unit.essence"] = "Logikessenz",
     -- Datachron messages.
     -- Cast.
     ["Rupture"] = "Aufreißen",
@@ -274,7 +274,7 @@ function mod:OnCastStart(nId, sCastName, nCastEndTime, sName)
     if tArgs.unitTarget then
       local targetName = core:ReplaceNoBreakSpace(tArgs.unitTarget:GetName())
       local targetId = tArgs.unitTarget:GetId()
-      if targetName == self.L["Essence of Logic"] then
+      if targetName == self.L["unit.essence"] then
         if not essenceUp[targetId] then
           essenceUp[targetId] = true
           local essPos = tArgs.unitTarget:GetPosition()
