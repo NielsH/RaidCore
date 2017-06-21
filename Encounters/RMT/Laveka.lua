@@ -23,9 +23,8 @@ mod:RegisterTrigMob(core.E.TRIGGER_ALL, { "unit.laveka" })
 mod:RegisterEnglishLocale({
     -- Unit names.
     ["unit.laveka"] = "Laveka the Dark-Hearted",
-    ["unit.phantom"] = "Phantom",
     ["unit.essence"] = "Essence Void",
-    ["unit.tortued_apparition"] = "Tortured Apparition",
+    ["unit.apparition"] = "Tortured Apparition",
     ["unit.soul_eater"] = "Soul Eater",
     ["unit.boneclaw"] = "Risen Boneclaw",
     ["unit.titan"] = "Risen Titan",
@@ -41,6 +40,8 @@ mod:RegisterEnglishLocale({
     ["cast.titan.bulwark"] = "Necrotic Bulwark",
     ["cast.titan.manifest"] = "Manifest",
     ["cast.adds.explosion"] = "Spirit Ire",
+    ["cast.apparition.fury"] = "Fury of the Restless Dead",
+    ["cast.boneclaw.gaze"] = "Boneclaw Gaze",
     -- Datachrons.
     ["chron.laveka.mask"] = "You feel the Mask of Mog-Mog pulling at your spirit.",
     ["chron.laveka.soul_fire"] = "Laveka sets ([^%s]+%s[^']+)'s soul ablaze!",
@@ -69,7 +70,6 @@ mod:RegisterEnglishLocale({
 mod:RegisterFrenchLocale({
     -- Unit names.
     ["unit.essence"] = "Vide d'essence",
-    ["unit.phantom"] = "Fantôme",
     -- Cast names.
     ["cast.laveka.cacophony"] = "Cacophonie des âmes",
     ["cast.laveka.rend"] = "Déchire le voile spirituel",
@@ -84,27 +84,18 @@ mod:RegisterFrenchLocale({
 )
 mod:RegisterGermanLocale({
     -- Unit names.
-    -- ["unit.phantom"] = "TODO",
     ["unit.essence"] = "Essenzleere",
-    -- ["unit.tortued_apparition"] = "TODO",
-    -- ["unit.orb"] = "TODO",
-    -- ["unit.boneclaw"] = "TODO",
-    -- ["unit.titan"] = "TODO",
     -- Cast names.
-    -- ["cast.essence.surge"] = "TODO", -- Essence fully materialized
-    -- ["cast.laveka.devoursouls"] = "TODO",
-    -- ["cast.laveka.animate_bones"] = "TODO",
-    -- ["cast.laveka.cacophony"] = "TODO",
-    -- ["cast.laveka.expulsion"] = "TODO",
-    -- ["cast.laveka.rend"] = "TODO",
-    -- ["cast.titan.bulwark"] = "TODO",
+    ["cast.essence.surge"] = "Essenzwoge", -- Essence fully materialized
+    ["cast.laveka.cacophony"] = "Seelenkakophonie",
+    ["cast.laveka.rend"] = "Geisterschleier zerreißen",
     -- ["cast.titan.manifest"] = "TODO",
-    -- ["cast.adds.explosion"] = "TODO",
+    ["cast.adds.explosion"] = "Geisterzorn",
     -- Datachrons.
     ["chron.laveka.mask"] = "Du spürst, wie die Maske von Mog-Mog deinen Geist angreift.",
-    -- ["chron.laveka.cacophony"] = "TODO",
-    -- ["chron.laveka.lastphase"] = "TODO",
-    -- ["chron.realm.living"] = "TODO",
+    ["chron.laveka.cacophony"] = "Laveka entfesselt eine Seelenkakophonie, die das Reich der Lebenden verwüstet.",
+    ["chron.realm.living"] = "Dein Geist ist ins Reich der Sterblichen zurückgekehrt.",
+    ["chron.laveka.lastphase"] = "Laveka nutzt die Maske von Mog-Mog, um den Schleier zwischen dieser und der nächsten Welt zu zerreißen.",
   }
 )
 ----------------------------------------------------------------------------------------------------
