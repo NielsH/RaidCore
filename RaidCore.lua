@@ -444,7 +444,7 @@ function RaidCore:OnInitialize()
       bAcceptSummons = true,
       bLUAErrorMessage = false,
       bLogSpawnLocations = false,
-      bLogsEnabled = true,
+      bLogsEnabled = false,
       bDebugLogsEnabled = false,
       bReadyCheckOnBreakTimeout = true,
       sReadyCheckMessage = self.L["Raid Resume"],
