@@ -19,7 +19,6 @@ local GroupLib = require "GroupLib"
 local GeminiAddon = Apollo.GetPackage("Gemini:Addon-1.1").tPackage
 local JSON = Apollo.GetPackage("Lib:dkJSON-2.5").tPackage
 local RaidCore = GeminiAddon:NewAddon("RaidCore", false, {}, "Gemini:Timer-1.0")
-local Log = Apollo.GetPackage("Log-1.0").tPackage
 
 ----------------------------------------------------------------------------------------------------
 -- Copy of few objects to reduce the cpu load.
@@ -445,10 +444,11 @@ function RaidCore:OnInitialize()
       bAcceptSummons = true,
       bLUAErrorMessage = false,
       bLogSpawnLocations = false,
+      bLogsEnabled = false,
+      bDebugLogsEnabled = false,
       bReadyCheckOnBreakTimeout = true,
       sReadyCheckMessage = self.L["Raid Resume"],
       bEnableTestEncounters = false,
-      bDisableSelectiveTracking = false,
     }
   }
 
@@ -520,7 +520,7 @@ function RaidCore:HandlePcallResult(success, error, output)
     if self.db.profile.bLUAErrorMessage then
       self:Print(error)
     end
-    Log:Add(RaidCore.E.ERROR, error)
+    self:Log(RaidCore.E.ERROR, error)
   end
   return success
 end
@@ -1039,7 +1039,7 @@ function RaidCore:SEARCH_OnCheckMapZone()
   if not _bIsEncounterInProgress then
     local tMap = GetCurrentZoneMap()
     if tMap then
-      Log:Add(RaidCore.E.CURRENT_ZONE_MAP, tMap.continentId, tMap.parentZoneId, tMap.id)
+      self:Log(RaidCore.E.CURRENT_ZONE_MAP, tMap.continentId, tMap.parentZoneId, tMap.id)
       local tTrigInZone = _tTrigPerZone[tMap.continentId]
       tTrigInZone = tTrigInZone and tTrigInZone[tMap.parentZoneId]
       tTrigInZone = tTrigInZone and tTrigInZone[tMap.id]

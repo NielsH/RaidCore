@@ -95,7 +95,7 @@ local _CI_Extra = {}
 ----------------------------------------------------------------------------------------------------
 local function ManagerCall(sMethod, ...)
   -- Trace all call to upper layer for debugging purpose.
-  Log:Add(sMethod, ...)
+  RaidCore:Log(sMethod, ...)
   -- Protected call.
   local s, e = pcall(RaidCore.GlobalEventHandler, RaidCore, sMethod, ...)
   RaidCore:HandlePcallResult(s, e)
@@ -181,7 +181,7 @@ Log:SetExtra2String(ExtraLog2Text)
 ----------------------------------------------------------------------------------------------------
 local function LogUnitSpawnLocation(nId, sName, tPosition)
   if RaidCore.db.profile.bLogSpawnLocations then
-    Log:Add(RaidCore.E.SPAWN_LOCATION, nId, sName, tPosition.x, tPosition.y, tPosition.z)
+    RaidCore:Log(RaidCore.E.SPAWN_LOCATION, nId, sName, tPosition.x, tPosition.y, tPosition.z)
   end
 end
 
@@ -239,14 +239,14 @@ end
 
 local function TrackThisUnit(tUnit, nTrackingType)
   local nId = tUnit:GetId()
-  if RaidCore.db.profile.bDisableSelectiveTracking then
+  if RaidCore.db.profile.bDebugLogsEnabled then
     nTrackingType = RaidCore.E.TRACK_ALL
   else
     nTrackingType = nTrackingType or RaidCore.E.TRACK_ALL
   end
 
   if not _tTrackedUnits[nId] and not tUnit:IsInYourGroup() then
-    Log:Add(RaidCore.E.TRACK_UNIT, nId)
+    RaidCore:Log(RaidCore.E.TRACK_UNIT, nId)
     local MaxHealth = tUnit:GetMaxHealth()
     local Health = tUnit:GetHealth()
     local tBuffs = GetBuffs(tUnit)
@@ -274,7 +274,7 @@ end
 
 local function UnTrackThisUnit(nId)
   if _tTrackedUnits[nId] then
-    Log:Add(RaidCore.E.UNTRACK_UNIT, nId)
+    RaidCore:Log(RaidCore.E.UNTRACK_UNIT, nId)
     _tTrackedUnits[nId] = nil
   end
 end
@@ -474,7 +474,7 @@ end
 -- ICCom functions.
 ----------------------------------------------------------------------------------------------------
 local function JoinSuccess()
-  Log:Add(RaidCore.E.JOIN_CHANNEL_STATUS, "Join Success")
+  RaidCore:Log(RaidCore.E.JOIN_CHANNEL_STATUS, "Join Success")
   _CommChannelTimer:Stop()
   _RaidCoreChannelComm:SetReceivedMessageFunction("CI_OnReceivedMessage", RaidCore)
   _RaidCoreChannelComm:SetSendMessageResultFunction("CI_OnSendMessageResult", RaidCore)
@@ -485,7 +485,7 @@ function RaidCore:CI_JoinChannelTry()
   local sChannelName = "RaidCore"
 
   -- Log this try.
-  Log:Add(RaidCore.E.JOIN_CHANNEL_TRY, sChannelName, "Group")
+  self:Log(RaidCore.E.JOIN_CHANNEL_TRY, sChannelName, "Group")
   -- Request to join the channel.
   _RaidCoreChannelComm = ICCommLib.JoinChannel(sChannelName, eChannelType)
   -- Start a timer to retry to join.
@@ -496,7 +496,7 @@ function RaidCore:CI_JoinChannelTry()
     if _RaidCoreChannelComm:IsReady() then
       JoinSuccess()
     else
-      Log:Add(RaidCore.E.JOIN_CHANNEL_STATUS, "In Progress")
+      self:Log(RaidCore.E.JOIN_CHANNEL_STATUS, "In Progress")
       _RaidCoreChannelComm:SetJoinResultFunction("CI_OnJoinResultFunction", RaidCore)
     end
   end
@@ -508,7 +508,7 @@ function RaidCore:CI_OnJoinResultFunction(tChannel, eResult)
   else
     for sJoinResult, ResultId in next, ICCommLib.CodeEnumICCommJoinResult do
       if ResultId == eResult then
-        Log:Add(RaidCore.E.JOIN_CHANNEL_STATUS, sJoinResult)
+        RaidCore:Log(RaidCore.E.JOIN_CHANNEL_STATUS, sJoinResult)
         break
       end
     end
@@ -552,9 +552,15 @@ function RaidCore:CombatInterface_ExtraActivate(sEvent, bNewState)
         _CI_Extra[sEvent] = nil
       end
     else
-      Log:Add(RaidCore.E.ERROR, ("Extra event '%s' is not supported"):format(sEvent))
+      self:Log(RaidCore.E.ERROR, ("Extra event '%s' is not supported"):format(sEvent))
     end
 
+  end
+end
+
+function RaidCore:Log(type, ...)
+  if self.db.profile.bLogsEnabled or type == RaidCore.E.ERROR then
+    Log:Add(type, ...)
   end
 end
 
@@ -586,21 +592,21 @@ function RaidCore:CombatInterface_SendMessage(sMessage, tDPlayerId)
   assert(type(tDPlayerId) == "number" or tDPlayerId == nil)
 
   if not _RaidCoreChannelComm then
-    Log:Add(RaidCore.E.CHANNEL_COMM_STATUS, "Channel not found")
+    self:Log(RaidCore.E.CHANNEL_COMM_STATUS, "Channel not found")
   elseif tDPlayerId == nil then
     -- Broadcast the message on RaidCore Channel (type: Group).
     _RaidCoreChannelComm:SendMessage(sMessage)
-    Log:Add(RaidCore.E.SEND_MESSAGE, sMessage, tDPlayerId)
+    self:Log(RaidCore.E.SEND_MESSAGE, sMessage, tDPlayerId)
   else
     -- Send the message to this player.
     local tPlayerUnit = GetUnitById(tDPlayerId)
     if not tPlayerUnit then
-      Log:Add(RaidCore.E.CHANNEL_COMM_STATUS, "Send aborded by Unknown ID")
+      self:Log(RaidCore.E.CHANNEL_COMM_STATUS, "Send aborded by Unknown ID")
     elseif not tPlayerUnit:IsInYourGroup() then
-      Log:Add(RaidCore.E.CHANNEL_COMM_STATUS, "Send aborded by invalid PlayerUnit")
+      self:Log(RaidCore.E.CHANNEL_COMM_STATUS, "Send aborded by invalid PlayerUnit")
     else
       _RaidCoreChannelComm:SendPrivateMessage(tPlayerUnit:GetName(), sMessage)
-      Log:Add(RaidCore.E.SEND_MESSAGE, sMessage, tDPlayerId)
+      self:Log(RaidCore.E.SEND_MESSAGE, sMessage, tDPlayerId)
     end
   end
 end
@@ -613,6 +619,9 @@ function RaidCore:CI_SendOnUnitCreated(tUnit, nId, sName)
     _tAllUnits[nId] = true
     ManagerCall(RaidCore.E.UNIT_CREATED, nId, tUnit, sName)
     LogUnitSpawnLocation(nId, sName, tUnit:GetPosition())
+    if self.db.profile.bDebugLogsEnabled then
+      TrackThisUnit(tUnit, self.E.TRACK_ALL)
+    end
   end
 end
 
@@ -795,7 +804,7 @@ function RaidCore:CI_OnSendMessageResult(iccomm, eResult, nMessageId)
       break
     end
   end
-  Log:Add(RaidCore.E.SEND_MESSAGE_RESULT, sResult, nMessageId)
+  self:Log(RaidCore.E.SEND_MESSAGE_RESULT, sResult, nMessageId)
 end
 
 function RaidCore:CI_ShowShortcutBar(eWhichBar, bIsVisible, nNumShortcuts)
