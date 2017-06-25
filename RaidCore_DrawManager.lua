@@ -34,6 +34,7 @@ local GetUnitById = GameLib.GetUnitById
 local WorldLocToScreenPoint = GameLib.WorldLocToScreenPoint
 local Races = GameLib.CodeEnumRace
 local NewVector3 = Vector3.New
+local ZeroVector3 = Vector3.Zero()
 
 ----------------------------------------------------------------------------------------------------
 -- local data.
@@ -139,7 +140,7 @@ local function RotatedVectorOffset(tVectorOffset, tFacingVector)
     local tOffsetRotation = CreateRotationMatrixY(math.deg(-math.atan2(tFacingVector.x, tFacingVector.z)))
     return RotationY(tVectorOffset, tOffsetRotation)
   else
-    return Vector3.zero
+    return ZeroVector3
   end
 end
 
