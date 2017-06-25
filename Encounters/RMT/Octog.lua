@@ -184,6 +184,7 @@ local playerId
 local currentOrbNumber
 local inkPools
 local drawPools
+local octog
 local updatePoolTimer = ApolloTimer.Create(TIMERS.POOL.UPDATE, true, "OnUpdatePoolTimer", mod)
 updatePoolTimer:Stop()
 ----------------------------------------------------------------------------------------------------
@@ -192,6 +193,7 @@ updatePoolTimer:Stop()
 function mod:OnBossEnable()
   orbCount = 0
   inkPools = {}
+  octog = {}
   drawPools = false
   playerId = GameLib.GetPlayerUnit():GetId()
   mod:AddTimerBar("NEXT_HOOKSHOT_TIMER", "msg.octog.hookshot.next", TIMERS.HOOKSHOT.FIRST)
@@ -242,13 +244,21 @@ end
 
 function mod:OnHookshotStart()
   mod:AddMsg("HOOKSHOT_CAST", "msg.octog.hookshot", 2, "Beware", "xkcdRed")
+  core:AddPolygon("HOOKSHOT1", octog.unit, 10.5, 0, 3, "xkcdRed", 20, {3,0,9.25})
+  core:AddPolygon("HOOKSHOT2", octog.unit, 10.5, 0, 3, "xkcdRed", 20, {-3,0,9.25})
 end
 
 function mod:OnHookshotEnd()
   mod:AddTimerBar("NEXT_HOOKSHOT_TIMER", "msg.octog.hookshot.next", TIMERS.HOOKSHOT.NORMAL)
+  mod:RemovePolygon("HOOKSHOT1")
+  mod:RemovePolygon("HOOKSHOT2")
 end
 
 function mod:OnOctogCreated(id, unit)
+  octog = {
+    unit = unit,
+    id = id
+  }
   core:WatchUnit(unit, core.E.TRACK_CASTS + core.E.TRACK_HEALTH + core.E.TRACK_BUFFS)
 end
 
