@@ -134,6 +134,15 @@ local function RotationY(tVector, tMatrixTeta)
   )
 end
 
+local function RotatedVectorOffset(tVectorOffset, tFacingVector)
+  if tVectorOffset then
+    local tOffsetRotation = CreateRotationMatrixY(math.deg(-math.atan2(tFacingVector.x, tFacingVector.z)))
+    return RotationY(tVectorOffset, tOffsetRotation)
+  else
+    return Vector3.zero
+  end
+end
+
 local function StartDrawing()
   if not _bDrawManagerRunning then
     _bDrawManagerRunning = true
@@ -558,10 +567,12 @@ function Polygon:UpdateDraw(tDraw)
     local tOriginVector = NewVector3(tOriginUnit:GetPosition())
     local tFacingVector = NewVector3(tOriginUnit:GetFacing())
     local tRefVector = tFacingVector * tDraw.nRadius
+    local tVectorOffset = RotatedVectorOffset(tDraw.tVectorOffset, tFacingVector)
+
     tVectors = {}
     for i = 1, tDraw.nSide do
       local CornerRotate = CreateRotationMatrixY(360 * i / tDraw.nSide + tDraw.nRotation)
-      tVectors[i] = tOriginVector + RotationY(tRefVector, CornerRotate)
+      tVectors[i] = tOriginVector + tVectorOffset + RotationY(tRefVector, CornerRotate)
     end
   end
 
@@ -584,7 +595,7 @@ function Polygon:UpdateDraw(tDraw)
   end
 end
 
-function Polygon:AddDraw(Key, Origin, nRadius, nRotation, nWidth, sColor, nSide)
+function Polygon:AddDraw(Key, Origin, nRadius, nRotation, nWidth, sColor, nSide, tVectorOffset)
   if self.tDraws[Key] then
     -- To complex to manage new definition with nSide which change,
     -- simplest to remove previous.
@@ -604,6 +615,7 @@ function Polygon:AddDraw(Key, Origin, nRadius, nRotation, nWidth, sColor, nSide)
   tDraw.nSide = nSide or 5
   tDraw.nPixieIds = tDraw.nPixieIds or {}
   tDraw.tVectors = tDraw.tVectors or {}
+  tDraw.tVectorOffset = tVectorOffset and NewVector3(tVectorOffset) or nil
   tDraw.tPixieAttributes = {
     bLine = true,
     fWidth = tDraw.nWidth,
@@ -619,10 +631,11 @@ function Polygon:AddDraw(Key, Origin, nRadius, nRotation, nWidth, sColor, nSide)
     tDraw.tOriginUnit = nil
     -- Precomputing coordonate of the polygon with constant origin.
     local tFacingVector = NewVector3(DEFAULT_NORTH_FACING)
+    local tPreVectorOffset = RotatedVectorOffset(tDraw.tVectorOffset, tFacingVector)
     local tRefVector = tFacingVector * tDraw.nRadius
     for i = 1, tDraw.nSide do
       local CornerRotate = CreateRotationMatrixY(360 * i / tDraw.nSide + tDraw.nRotation)
-      tDraw.tVectors[i] = tOriginVector + RotationY(tRefVector, CornerRotate)
+      tDraw.tVectors[i] = tOriginVector + tPreVectorOffset + RotationY(tRefVector, CornerRotate)
     end
   elseif tOriginUnit then
     tDraw.tOriginUnit = tOriginUnit
@@ -798,9 +811,9 @@ function RaidCore:OnDrawUpdate(nCurrentTime)
       local s, e = pcall(fHandler, tDrawManager, tDraw)
       if not self:HandlePcallResult(s, e, " - DrawKey: "..Key) then
         table.insert(tDrawsToRemove, {
-          tDrawManager = tDrawManager,
-          Key = Key,
-        })
+            tDrawManager = tDrawManager,
+            Key = Key,
+          })
       end
     end
     if next(tDrawManager.tDraws) then
@@ -833,9 +846,9 @@ function RaidCore:CleanDrawsOnUnitDestroyed(nDestroyedId)
     if tDraws and next(tDraws) ~= nil then
       for Key, _ in next, tDraws do
         table.insert(tDrawsToRemove, {
-          tDrawManager = tDrawManager,
-          Key = Key,
-        })
+            tDrawManager = tDrawManager,
+            Key = Key,
+          })
       end
     end
   end
