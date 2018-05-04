@@ -122,7 +122,7 @@ local DEBUFFID_INCUBATION = 58564
 local DEBUFFID_CHROMOSOME_CORRUPTION = 56652
 -- Pillar Markers.
 local PILLAR_POSITIONS = {
-  ["EST"] = { x = 194.44, y = -110.80, z = -483.20 },
+  ["EAST"] = { x = 194.44, y = -110.80, z = -483.20 },
   ["SOUTH"] = { x = 165.79, y = -110.80, z = -464.84 },
   ["WEST"] = { x = 144.20, y = -110.80, z = -494.38 },
   ["NORTH"] = { x = 175.00, y = -110.80, z = -513.31 },
