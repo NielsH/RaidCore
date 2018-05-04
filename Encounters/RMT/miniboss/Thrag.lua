@@ -26,6 +26,7 @@ mod:RegisterEnglishLocale({
     ["cast.thrag.gigavolt"] = "Gigavolt",
     -- Messages.
     ["msg.thrag.gigavolt.get_out"] = "GET OUT",
+    ["msg.thrag.gigavolt.next"] = "Next Gigavolt in",
   }
 )
 mod:RegisterGermanLocale({
@@ -49,10 +50,21 @@ mod:RegisterDefaultSetting("BombLines", false)
 local playerUnit
 
 ----------------------------------------------------------------------------------------------------
+-- Constants.
+----------------------------------------------------------------------------------------------------
+local TIMERS = {
+  GIGAVOLT = {
+    FIRST = 22,
+    NORMAL = 25,
+  }
+}
+
+----------------------------------------------------------------------------------------------------
 -- Encounter description.
 ----------------------------------------------------------------------------------------------------
 function mod:OnBossEnable()
   playerUnit = GameLib.GetPlayerUnit()
+  mod:StartFirstGigavoltTimer()
 end
 
 function mod:OnThragCreated(id, unit, name)
@@ -63,6 +75,23 @@ function mod:OnJumpstartCreated(id, unit, name)
   if mod:GetSetting("BombLines") then
     core:AddLineBetweenUnits("JUMP_START_LINE_"..id, playerUnit, unit, 5)
   end
+end
+
+function mod:OnGigavolt()
+  mod:AddMsg("GIGAVOLT_MSG", "msg.thrag.gigavolt.get_out", 3, "RunAway", "white")
+  mod:StartNormalGigavoltTimer()
+end
+
+function mod:StartFirstGigavoltTimer()
+  mod:StartGigavoltTimer(TIMERS.GIGAVOLT.FIRST)
+end
+
+function mod:StartNormalGigavoltTimer()
+  mod:StartGigavoltTimer(TIMERS.GIGAVOLT.NORMAL)
+end
+
+function mod:StartGigavoltTimer(time)
+  mod:AddTimerBar("NEXT_GIGAVOLT_TIMER", "msg.thrag.gigavolt.next", time)
 end
 
 ----------------------------------------------------------------------------------------------------
@@ -76,3 +105,10 @@ mod:RegisterUnitEvents("unit.jumpstart",{
     [core.E.UNIT_CREATED] = mod.OnJumpstartCreated,
   }
 )
+mod:RegisterUnitEvents("unit.thrag",{
+    ["cast.thrag.gigavolt"] = {
+      [core.E.CAST_START] = mod.OnGigavolt,
+    }
+  }
+)
+
