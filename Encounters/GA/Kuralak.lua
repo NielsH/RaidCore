@@ -42,7 +42,7 @@ mod:RegisterEnglishLocale({
     ["SWITCH TANK"] = "SWITCH TANK",
     ["MARKER north"] = "North",
     ["MARKER south"] = "South",
-    ["MARKER east"] = "Est",
+    ["MARKER east"] = "East",
     ["MARKER west"] = "West",
   })
 mod:RegisterFrenchLocale({
@@ -69,7 +69,7 @@ mod:RegisterFrenchLocale({
     ["SWITCH TANK"] = "CHANGEMENT TANK",
     ["MARKER north"] = "Nord",
     ["MARKER south"] = "Sud",
-    ["MARKER east"] = "Est",
+    ["MARKER east"] = "East",
     ["MARKER west"] = "Ouest",
   })
 mod:RegisterGermanLocale({
@@ -148,7 +148,7 @@ function mod:OnBossEnable()
   -- TODO: Remove this init, when values will be found.
   EGG_BEST_POSITIONS = nil
   if mod:GetSetting("OtherPillarMarkers") then
-    core:SetWorldMarker("EAST", self.L["MARKER east"], PILLAR_POSITIONS["EST"])
+    core:SetWorldMarker("EAST", self.L["MARKER east"], PILLAR_POSITIONS["EAST"])
     core:SetWorldMarker("SOUTH", self.L["MARKER south"], PILLAR_POSITIONS["SOUTH"])
     core:SetWorldMarker("WEST", self.L["MARKER west"], PILLAR_POSITIONS["WEST"])
     core:SetWorldMarker("NORTH", self.L["MARKER north"], PILLAR_POSITIONS["NORTH"])
