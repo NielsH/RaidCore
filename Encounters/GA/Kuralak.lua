@@ -113,6 +113,12 @@ mod:RegisterDefaultTimerBarConfigs({
     ["OUTBREAK"] = { sColor = "xkcdBlueyGreen" },
   })
 
+mod:RegisterUnitBarConfig("Kuralak the Defiler", {
+    tMidphases = {
+      {percent = 73},
+    }
+  }
+)
 ----------------------------------------------------------------------------------------------------
 -- Constants.
 ----------------------------------------------------------------------------------------------------
@@ -155,11 +161,14 @@ function mod:OnBossEnable()
   end
 end
 
+function mod:OnBarUnitCreated(id, unit, name)
+  mod:AddUnit(unit)
+end
+
 function mod:OnUnitCreated(nId, tUnit, sName)
   local nHealth = tUnit:GetHealth()
   if sName == self.L["Kuralak the Defiler"] then
     if nHealth then
-      core:AddUnit(tUnit)
       core:WatchUnit(tUnit)
       -- TODO: Remove this init, when values will be found.
       if EGG_BEST_POSITIONS == nil then
@@ -269,3 +278,13 @@ function mod:OnDebuffRemove(nId, nSpellId)
     end
   end
 end
+
+----------------------------------------------------------------------------------------------------
+-- Bind event handlers.
+----------------------------------------------------------------------------------------------------
+mod:RegisterUnitEvents({
+    "Kuralak the Defiler",
+    },{
+    [core.E.UNIT_CREATED] = mod.OnBarUnitCreated,
+  }
+)

@@ -36,6 +36,7 @@ mod:RegisterEnglishLocale({
     ["Channeling Energy"] = "Channeling Energy",
     ["Gathering Energy"] = "Gathering Energy",
     ["Stitching Strain"] = "Stitching Strain",
+    ["Essence Rot"] = "Essence Rot",
     -- Timer bars.
     ["Next P2"] = "Next P2",
     ["Next equalization"] = "Next equalization",
@@ -67,6 +68,7 @@ mod:RegisterFrenchLocale({
     ["Channeling Energy"] = "Canalisation d'énergie",
     ["Gathering Energy"] = "Accumulation d'énergie",
     ["Stitching Strain"] = "Pression de suture",
+    ["Essence Rot"] = "Essence Rot", -- missing translation
     -- Timer bars.
     ["Next P2"] = "Prochaine P2",
     ["Next equalization"] = "Prochaine égalisation",
@@ -95,6 +97,7 @@ mod:RegisterGermanLocale({
     -- Cast.
     ["Teleport"] = "Teleportieren",
     ["Channeling Energy"] = "Energie kanalisieren",
+    ["Essence Rot"] = "Essence Rot", -- missing translation
     -- Timer bars.
     ["Next P2"] = "Nächste P2",
   })
@@ -219,6 +222,8 @@ function mod:OnCastStart(nId, sCastName, nCastEndTime, sName)
         mod:AddMsg("InfoPhase", "Phase 2: NOXMIND! (Pillars)", 5, nil, "blue")
         mod:AddTimerBar("P2Timeout", "P2: Timeout pillars", PHASE2_DURATION)
         eBossPhase2 = PHASE2_TYPE_NOXMIND
+      elseif self.L["Essence Rot"] == sCastName then
+        mod:AddMsg("WAVE_MSG", "WAVES", 5, "RunAway", "Red")
       end
     elseif sName == self.L["Fleshmonger Vratorg"] then
       if self.L["Teleport"] == sCastName then
