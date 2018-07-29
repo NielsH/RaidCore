@@ -250,6 +250,7 @@ end
 
 function mod:OnOctogCreated(id, unit)
   core:WatchUnit(unit, core.E.TRACK_CASTS + core.E.TRACK_HEALTH + core.E.TRACK_BUFFS)
+  core:AddSimpleLine("Cleave", id, 0, 5, 0, 8, "green")
 end
 
 function mod:OnOctogHealthChanged(id, percent, name)
