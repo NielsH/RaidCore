@@ -162,7 +162,9 @@ function mod:OnBossEnable()
 end
 
 function mod:OnBarUnitCreated(id, unit, name)
-  mod:AddUnit(unit)
+  if unit:GetHealth() then
+    mod:AddUnit(unit)
+  end
 end
 
 function mod:OnUnitCreated(nId, tUnit, sName)
